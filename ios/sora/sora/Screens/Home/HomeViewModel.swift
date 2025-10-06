@@ -1,11 +1,14 @@
 import Foundation
-import Combine
+import Observation
 
-final class HomeViewModel: ObservableObject {
-    @Published var credits: Int = 0
-    @Published var videos: [Video] = []
-    @Published var isLoading = false
-    @Published var errorMessage: String?
+@Observable
+final class HomeViewModel {
+    var credits: Int = 0
+    var videos: [Video] = []
+    var isLoading = false
+    var errorMessage: String?
+    var thumbnailReadyVideoId: String?
+    var hasCompletedInitialLoad = false
 
     private let videoService: VideoServiceProtocol
     private let creditService: CreditServiceProtocol
@@ -37,6 +40,7 @@ final class HomeViewModel: ObservableObject {
         }
 
         isLoading = false
+        hasCompletedInitialLoad = true
         startAutoRefresh()
     }
 
@@ -67,9 +71,7 @@ final class HomeViewModel: ObservableObject {
     private func loadCredits() async {
         do {
             credits = try await creditService.getBalance()
-            AppLogger.ui.info("Credits loaded: \(self.credits)")
         } catch {
-            AppLogger.ui.error("Failed to load credits: \(error.localizedDescription)")
         }
     }
 
@@ -78,9 +80,16 @@ final class HomeViewModel: ObservableObject {
         do {
             let response = try await videoService.listVideos(limit: 50, offset: 0)
             videos = response.videos
-            AppLogger.ui.info("Videos loaded: \(self.videos.count)")
+
+            for video in videos where video.status == .completed {
+                let isCached = VideoCacheManager.shared.isCached(videoId: video.id)
+                let hasThumbnail = VideoThumbnailGenerator.shared.hasThumbnail(for: video.id)
+
+                if !isCached || !hasThumbnail {
+                    cacheVideoInBackground(video)
+                }
+            }
         } catch {
-            AppLogger.ui.error("Failed to load videos: \(error.localizedDescription)")
             errorMessage = error.localizedDescription
         }
     }
@@ -91,7 +100,7 @@ final class HomeViewModel: ObservableObject {
 
         stopAutoRefresh()
 
-        refreshTimer = Timer.scheduledTimer(withTimeInterval: 5.0, repeats: true) { [weak self] _ in
+        refreshTimer = Timer.scheduledTimer(withTimeInterval: 30.0, repeats: true) { [weak self] _ in
             Task { @MainActor in
                 await self?.refreshActiveVideos()
             }
@@ -114,9 +123,12 @@ final class HomeViewModel: ObservableObject {
 
                 if let index = videos.firstIndex(where: { $0.id == video.id }) {
                     videos[index] = updated
+
+                    if updated.status == .completed, !VideoCacheManager.shared.isCached(videoId: updated.id) {
+                        cacheVideoInBackground(updated)
+                    }
                 }
             } catch {
-                AppLogger.ui.error("Failed to refresh video \(video.id): \(error.localizedDescription)")
             }
         }
 
@@ -125,6 +137,25 @@ final class HomeViewModel: ObservableObject {
         }
 
         await loadCredits()
+    }
+
+    private func cacheVideoInBackground(_ video: Video) {
+        guard let videoURLString = video.videoUrl,
+              let videoURL = URL(string: videoURLString) else {
+            return
+        }
+
+        Task { @MainActor in
+            do {
+                try await VideoCacheManager.shared.downloadVideo(videoId: video.id, from: videoURL)
+
+                let localURL = VideoCacheManager.shared.localURL(for: video.id)
+                _ = try await VideoThumbnailGenerator.shared.generateThumbnail(for: localURL, videoId: video.id)
+
+                thumbnailReadyVideoId = video.id
+            } catch {
+            }
+        }
     }
 
     private var hasActiveVideos: Bool {

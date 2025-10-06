@@ -1,9 +1,7 @@
 import UIKit
-import Combine
 
 final class HomeViewController: UIViewController {
     private let viewModel: HomeViewModel
-    private var cancellables = Set<AnyCancellable>()
 
     private enum Section {
         case main
@@ -39,55 +37,43 @@ final class HomeViewController: UIViewController {
         return refresh
     }()
 
-    private lazy var creditBalanceView: UIView = {
-        let view = UIView()
-        view.backgroundColor = .systemIndigo
-        view.layer.cornerRadius = 12
-        view.translatesAutoresizingMaskIntoConstraints = false
+    private lazy var creditsTitleView: UIView = {
+        let container = UIView()
 
-        let titleLabel = UILabel()
-        titleLabel.text = "Credits"
-        titleLabel.font = .systemFont(ofSize: 14, weight: .medium)
-        titleLabel.textColor = .white.withAlphaComponent(0.8)
-        titleLabel.translatesAutoresizingMaskIntoConstraints = false
+        let stackView = UIStackView()
+        stackView.axis = .horizontal
+        stackView.spacing = 8
+        stackView.alignment = .center
+        stackView.translatesAutoresizingMaskIntoConstraints = false
 
-        view.addSubviews(titleLabel, creditsLabel)
+        let iconView = UIImageView(image: UIImage(systemName: "creditcard.fill"))
+        iconView.tintColor = .systemIndigo
+        iconView.contentMode = .scaleAspectFit
+        iconView.translatesAutoresizingMaskIntoConstraints = false
+
+        let creditsLabel = UILabel()
+        creditsLabel.font = .systemFont(ofSize: 17, weight: .semibold)
+        creditsLabel.textColor = .label
+        creditsLabel.translatesAutoresizingMaskIntoConstraints = false
+        self.creditsLabel = creditsLabel
+
+        stackView.addArrangedSubviews(iconView, creditsLabel)
+        container.addSubview(stackView)
 
         NSLayoutConstraint.activate([
-            titleLabel.topAnchor.constraint(equalTo: view.topAnchor, constant: 12),
-            titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            iconView.widthAnchor.constraint(equalToConstant: 20),
+            iconView.heightAnchor.constraint(equalToConstant: 20),
 
-            creditsLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 4),
-            creditsLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            creditsLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-            creditsLabel.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -12)
+            stackView.topAnchor.constraint(equalTo: container.topAnchor),
+            stackView.leadingAnchor.constraint(equalTo: container.leadingAnchor),
+            stackView.trailingAnchor.constraint(equalTo: container.trailingAnchor),
+            stackView.bottomAnchor.constraint(equalTo: container.bottomAnchor)
         ])
 
-        return view
+        return container
     }()
 
-    private lazy var creditsLabel: UILabel = {
-        let label = UILabel()
-        label.font = .systemFont(ofSize: 32, weight: .bold)
-        label.textColor = .white
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-
-    private lazy var createButton: UIButton = {
-        var config = UIButton.Configuration.filled()
-        config.title = "Create Video"
-        config.image = UIImage(systemName: "plus.circle.fill")
-        config.imagePadding = 8
-        config.cornerStyle = .large
-        config.baseBackgroundColor = .systemIndigo
-
-        let button = UIButton(configuration: config)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.addTarget(self, action: #selector(createButtonTapped), for: .touchUpInside)
-        return button
-    }()
+    private var creditsLabel: UILabel!
 
     private lazy var emptyStateLabel: UILabel = {
         let label = UILabel()
@@ -100,6 +86,63 @@ final class HomeViewController: UIViewController {
         label.isHidden = true
         return label
     }()
+
+    private lazy var skeletonView: UIView = {
+        let container = UIView()
+        container.backgroundColor = .systemGroupedBackground
+        container.translatesAutoresizingMaskIntoConstraints = false
+
+        let stackView = UIStackView()
+        stackView.axis = .vertical
+        stackView.spacing = 12
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+
+        for _ in 0..<3 {
+            let skeletonCell = createSkeletonCell()
+            stackView.addArrangedSubview(skeletonCell)
+        }
+
+        container.addSubview(stackView)
+
+        NSLayoutConstraint.activate([
+            stackView.topAnchor.constraint(equalTo: container.safeAreaLayoutGuide.topAnchor, constant: 12),
+            stackView.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 16),
+            stackView.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -16)
+        ])
+
+        return container
+    }()
+
+    private func createSkeletonCell() -> UIView {
+        let cell = UIView()
+        cell.backgroundColor = .systemGray6
+        cell.layer.cornerRadius = 16
+        cell.clipsToBounds = true
+        cell.translatesAutoresizingMaskIntoConstraints = false
+
+        let shimmerView = UIView()
+        shimmerView.backgroundColor = .systemGray5
+        shimmerView.translatesAutoresizingMaskIntoConstraints = false
+        cell.addSubview(shimmerView)
+
+        NSLayoutConstraint.activate([
+            cell.heightAnchor.constraint(equalTo: cell.widthAnchor, multiplier: 9.0 / 16.0),
+            shimmerView.topAnchor.constraint(equalTo: cell.topAnchor),
+            shimmerView.leadingAnchor.constraint(equalTo: cell.leadingAnchor),
+            shimmerView.trailingAnchor.constraint(equalTo: cell.trailingAnchor),
+            shimmerView.bottomAnchor.constraint(equalTo: cell.bottomAnchor)
+        ])
+
+        let animation = CABasicAnimation(keyPath: "opacity")
+        animation.fromValue = 1.0
+        animation.toValue = 0.5
+        animation.duration = 1.0
+        animation.autoreverses = true
+        animation.repeatCount = .infinity
+        shimmerView.layer.add(animation, forKey: "shimmer")
+
+        return cell
+    }
 
     init(viewModel: HomeViewModel) {
         self.viewModel = viewModel
@@ -121,32 +164,34 @@ final class HomeViewController: UIViewController {
         }
     }
 
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+
+        Task {
+            await viewModel.refreshData()
+        }
+    }
+
     private func setupUI() {
         view.backgroundColor = .systemGroupedBackground
 
-        let headerStack = UIStackView()
-        headerStack.axis = .vertical
-        headerStack.spacing = 16
-        headerStack.translatesAutoresizingMaskIntoConstraints = false
-        headerStack.addArrangedSubviews(creditBalanceView, createButton)
-
-        view.addSubviews(headerStack, collectionView, emptyStateLabel)
+        view.addSubviews(collectionView, emptyStateLabel, skeletonView)
         collectionView.refreshControl = refreshControl
+        collectionView.alpha = 0
 
         NSLayoutConstraint.activate([
-            headerStack.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 16),
-            headerStack.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            headerStack.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-
-            createButton.heightAnchor.constraint(equalToConstant: 50),
-
-            collectionView.topAnchor.constraint(equalTo: headerStack.bottomAnchor, constant: 16),
+            collectionView.topAnchor.constraint(equalTo: view.topAnchor),
             collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
 
             emptyStateLabel.centerXAnchor.constraint(equalTo: collectionView.centerXAnchor),
-            emptyStateLabel.centerYAnchor.constraint(equalTo: collectionView.centerYAnchor)
+            emptyStateLabel.centerYAnchor.constraint(equalTo: collectionView.centerYAnchor),
+
+            skeletonView.topAnchor.constraint(equalTo: view.topAnchor),
+            skeletonView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            skeletonView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            skeletonView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
     }
 
@@ -154,39 +199,59 @@ final class HomeViewController: UIViewController {
         title = "Sora Engine"
         navigationController?.navigationBar.prefersLargeTitles = true
 
-        let signOutButton = UIBarButtonItem(
-            title: "Sign Out",
+        let createButton = UIBarButtonItem(
+            image: UIImage(systemName: "plus.circle.fill"),
             style: .plain,
             target: self,
-            action: #selector(signOutTapped)
+            action: #selector(createButtonTapped)
         )
-        navigationItem.rightBarButtonItem = signOutButton
+        createButton.tintColor = .systemIndigo
+
+        navigationItem.leftBarButtonItem = UIBarButtonItem(customView: creditsTitleView)
+        navigationItem.rightBarButtonItem = createButton
     }
 
     private func bindViewModel() {
-        viewModel.$credits
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] credits in
-                self?.creditsLabel.text = "\(credits)"
-            }
-            .store(in: &cancellables)
+        observeViewModel()
+    }
 
-        viewModel.$videos
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] videos in
-                self?.updateSnapshot(with: videos)
-                self?.emptyStateLabel.isHidden = !videos.isEmpty
+    private func observeViewModel() {
+        withObservationTracking {
+            _ = viewModel.credits
+            _ = viewModel.videos
+            _ = viewModel.hasCompletedInitialLoad
+            _ = viewModel.isLoading
+            _ = viewModel.thumbnailReadyVideoId
+        } onChange: {
+            Task { @MainActor [weak self] in
+                self?.updateUI()
+                self?.observeViewModel()
             }
-            .store(in: &cancellables)
+        }
+    }
 
-        viewModel.$isLoading
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] isLoading in
-                if !isLoading {
-                    self?.refreshControl.endRefreshing()
+    private func updateUI() {
+        creditsLabel.text = "\(viewModel.credits)"
+
+        updateSnapshot(with: viewModel.videos)
+        emptyStateLabel.isHidden = !viewModel.hasCompletedInitialLoad || !viewModel.videos.isEmpty
+
+        if !viewModel.isLoading {
+            refreshControl.endRefreshing()
+
+            if skeletonView.superview != nil {
+                UIView.animate(withDuration: 0.4, delay: 0, options: .curveEaseInOut) {
+                    self.skeletonView.alpha = 0
+                    self.collectionView.alpha = 1
+                } completion: { _ in
+                    self.skeletonView.removeFromSuperview()
                 }
             }
-            .store(in: &cancellables)
+        }
+
+        if let videoId = viewModel.thumbnailReadyVideoId {
+            reloadCell(for: videoId)
+        }
     }
 
     private func updateSnapshot(with videos: [Video]) {
@@ -196,22 +261,30 @@ final class HomeViewController: UIViewController {
         dataSource.apply(snapshot, animatingDifferences: true)
     }
 
+    private func reloadCell(for videoId: String) {
+        guard let video = viewModel.videos.first(where: { $0.id == videoId }) else { return }
+
+        var snapshot = dataSource.snapshot()
+        snapshot.reloadItems([video])
+        dataSource.apply(snapshot, animatingDifferences: true)
+    }
+
     private func createLayout() -> UICollectionViewLayout {
         let itemSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1.0),
-            heightDimension: .estimated(240)
+            heightDimension: .fractionalWidth(9.0 / 16.0)
         )
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
 
         let groupSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1.0),
-            heightDimension: .estimated(240)
+            heightDimension: .fractionalWidth(9.0 / 16.0)
         )
         let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
 
         let section = NSCollectionLayoutSection(group: group)
-        section.interGroupSpacing = 16
-        section.contentInsets = NSDirectionalEdgeInsets(top: 16, leading: 16, bottom: 16, trailing: 16)
+        section.interGroupSpacing = 12
+        section.contentInsets = NSDirectionalEdgeInsets(top: 12, leading: 16, bottom: 12, trailing: 16)
 
         return UICollectionViewCompositionalLayout(section: section)
     }

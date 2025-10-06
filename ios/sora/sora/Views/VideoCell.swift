@@ -3,36 +3,49 @@ import UIKit
 final class VideoCell: UICollectionViewCell {
     static let reuseIdentifier = "VideoCell"
 
-    private lazy var containerView: UIView = {
-        let view = UIView()
-        view.backgroundColor = .secondarySystemGroupedBackground
-        view.layer.cornerRadius = 12
-        view.layer.masksToBounds = true
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
+    private lazy var thumbnailImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.contentMode = .scaleAspectFill
+        imageView.backgroundColor = .systemGray5
+        imageView.clipsToBounds = true
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        return imageView
     }()
 
-    private lazy var thumbnailView: UIView = {
-        let view = UIView()
-        view.backgroundColor = .systemGray5
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
+    private lazy var gradientLayer: CAGradientLayer = {
+        let layer = CAGradientLayer()
+        layer.colors = [
+            UIColor.clear.cgColor,
+            UIColor.black.withAlphaComponent(0.8).cgColor
+        ]
+        layer.locations = [0.3, 1.0]
+        return layer
     }()
 
     private lazy var playIconView: UIImageView = {
-        let config = UIImage.SymbolConfiguration(pointSize: 32, weight: .medium)
+        let config = UIImage.SymbolConfiguration(pointSize: 48, weight: .semibold)
         let image = UIImage(systemName: "play.circle.fill", withConfiguration: config)
         let imageView = UIImageView(image: image)
         imageView.tintColor = .white
         imageView.contentMode = .center
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.isHidden = true
+        imageView.alpha = 0.9
         return imageView
+    }()
+
+    private lazy var loadingIndicator: UIActivityIndicatorView = {
+        let indicator = UIActivityIndicatorView(style: .large)
+        indicator.color = .white
+        indicator.hidesWhenStopped = true
+        indicator.translatesAutoresizingMaskIntoConstraints = false
+        return indicator
     }()
 
     private lazy var statusLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 12, weight: .semibold)
+        label.font = .systemFont(ofSize: 15, weight: .medium)
+        label.textColor = .white
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -40,14 +53,23 @@ final class VideoCell: UICollectionViewCell {
 
     private lazy var progressView: UIProgressView = {
         let progress = UIProgressView(progressViewStyle: .default)
+        progress.tintColor = .white
+        progress.trackTintColor = .white.withAlphaComponent(0.3)
         progress.translatesAutoresizingMaskIntoConstraints = false
         progress.isHidden = true
         return progress
     }()
 
+    private lazy var textContainer: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+
     private lazy var promptLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 14, weight: .medium)
+        label.font = .systemFont(ofSize: 15, weight: .semibold)
+        label.textColor = .white
         label.numberOfLines = 2
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -55,8 +77,8 @@ final class VideoCell: UICollectionViewCell {
 
     private lazy var detailsLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 12, weight: .regular)
-        label.textColor = .secondaryLabel
+        label.font = .systemFont(ofSize: 12, weight: .medium)
+        label.textColor = .white.withAlphaComponent(0.8)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -70,83 +92,109 @@ final class VideoCell: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
 
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        gradientLayer.frame = thumbnailImageView.bounds
+    }
+
     private func setupUI() {
-        contentView.addSubview(containerView)
+        contentView.layer.cornerRadius = 16
+        contentView.clipsToBounds = true
 
-        let textStack = UIStackView()
-        textStack.axis = .vertical
-        textStack.spacing = 4
-        textStack.translatesAutoresizingMaskIntoConstraints = false
-        textStack.addArrangedSubviews(promptLabel, detailsLabel)
+        contentView.addSubview(thumbnailImageView)
+        thumbnailImageView.layer.addSublayer(gradientLayer)
 
-        let mainStack = UIStackView()
-        mainStack.axis = .vertical
-        mainStack.spacing = 12
-        mainStack.translatesAutoresizingMaskIntoConstraints = false
+        contentView.addSubview(playIconView)
+        contentView.addSubview(loadingIndicator)
+        contentView.addSubview(statusLabel)
+        contentView.addSubview(progressView)
 
-        thumbnailView.addSubview(playIconView)
-        thumbnailView.addSubview(statusLabel)
-
-        mainStack.addArrangedSubviews(thumbnailView, progressView, textStack)
-
-        containerView.addSubview(mainStack)
+        textContainer.addSubview(promptLabel)
+        textContainer.addSubview(detailsLabel)
+        contentView.addSubview(textContainer)
 
         NSLayoutConstraint.activate([
-            containerView.topAnchor.constraint(equalTo: contentView.topAnchor),
-            containerView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            containerView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            containerView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
+            thumbnailImageView.topAnchor.constraint(equalTo: contentView.topAnchor),
+            thumbnailImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            thumbnailImageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            thumbnailImageView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
 
-            mainStack.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 12),
-            mainStack.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 12),
-            mainStack.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -12),
-            mainStack.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -12),
+            playIconView.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
+            playIconView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
 
-            thumbnailView.heightAnchor.constraint(equalToConstant: 160),
+            loadingIndicator.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
+            loadingIndicator.centerYAnchor.constraint(equalTo: contentView.centerYAnchor, constant: -20),
 
-            playIconView.centerXAnchor.constraint(equalTo: thumbnailView.centerXAnchor),
-            playIconView.centerYAnchor.constraint(equalTo: thumbnailView.centerYAnchor),
+            statusLabel.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
+            statusLabel.topAnchor.constraint(equalTo: loadingIndicator.bottomAnchor, constant: 12),
 
-            statusLabel.centerXAnchor.constraint(equalTo: thumbnailView.centerXAnchor),
-            statusLabel.centerYAnchor.constraint(equalTo: thumbnailView.centerYAnchor)
+            progressView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
+            progressView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
+            progressView.topAnchor.constraint(equalTo: statusLabel.bottomAnchor, constant: 12),
+
+            textContainer.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            textContainer.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+            textContainer.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -16),
+
+            promptLabel.topAnchor.constraint(equalTo: textContainer.topAnchor),
+            promptLabel.leadingAnchor.constraint(equalTo: textContainer.leadingAnchor),
+            promptLabel.trailingAnchor.constraint(equalTo: textContainer.trailingAnchor),
+
+            detailsLabel.topAnchor.constraint(equalTo: promptLabel.bottomAnchor, constant: 4),
+            detailsLabel.leadingAnchor.constraint(equalTo: textContainer.leadingAnchor),
+            detailsLabel.trailingAnchor.constraint(equalTo: textContainer.trailingAnchor),
+            detailsLabel.bottomAnchor.constraint(equalTo: textContainer.bottomAnchor)
         ])
     }
 
     func configure(with video: Video) {
         promptLabel.text = video.prompt
-        detailsLabel.text = "\(video.model) • \(video.seconds)s • \(video.creditsCost) credits"
+        detailsLabel.text = "\(video.model) • \(video.seconds)s"
+
+        if let thumbnail = VideoThumbnailGenerator.shared.loadThumbnail(for: video.id) {
+            thumbnailImageView.image = thumbnail
+            gradientLayer.isHidden = false
+        } else {
+            thumbnailImageView.image = nil
+            gradientLayer.isHidden = true
+        }
 
         switch video.status {
         case .completed:
             statusLabel.isHidden = true
             playIconView.isHidden = false
             progressView.isHidden = true
-            thumbnailView.backgroundColor = .systemIndigo
+            loadingIndicator.stopAnimating()
+            thumbnailImageView.backgroundColor = .systemIndigo
+            textContainer.isHidden = false
 
         case .inProgress:
-            statusLabel.text = "Generating... \(video.progress)%"
-            statusLabel.textColor = .white
+            statusLabel.text = "Generating \(video.progress)%"
             statusLabel.isHidden = false
             playIconView.isHidden = true
             progressView.isHidden = false
             progressView.progress = Float(video.progress) / 100.0
-            thumbnailView.backgroundColor = .systemBlue
+            loadingIndicator.startAnimating()
+            thumbnailImageView.backgroundColor = .systemBlue
+            textContainer.isHidden = true
 
         case .queued:
-            statusLabel.text = "Queued"
-            statusLabel.textColor = .white
+            statusLabel.text = "Starting generation..."
             statusLabel.isHidden = false
             playIconView.isHidden = true
             progressView.isHidden = true
-            thumbnailView.backgroundColor = .systemGray
+            loadingIndicator.startAnimating()
+            thumbnailImageView.backgroundColor = .systemGray
+            textContainer.isHidden = true
 
         case .failed:
-            statusLabel.text = "Failed"
-            statusLabel.textColor = .white
+            statusLabel.text = "Generation failed"
             statusLabel.isHidden = false
             playIconView.isHidden = true
             progressView.isHidden = true
-            thumbnailView.backgroundColor = .systemRed
+            loadingIndicator.stopAnimating()
+            thumbnailImageView.backgroundColor = .systemRed
+            textContainer.isHidden = true
         }
     }
 }
