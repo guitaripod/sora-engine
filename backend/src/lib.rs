@@ -51,6 +51,7 @@ async fn main(req: Request, env: Env, _ctx: Context) -> worker::Result<Response>
         .post_async("/v1/auth/apple/token", handlers::auth::apple_sign_in)
         .get_async("/v1/auth/me", handlers::auth::get_me)
         .post_async("/v1/videos", handlers::videos::create_video)
+        .on_async("/v1/videos/:id/proxy", handlers::video_proxy::proxy_video_content)
         .get_async("/v1/videos/:id", handlers::videos::get_video)
         .get_async("/v1/videos", handlers::videos::list_videos)
         .post_async("/v1/videos/estimate", handlers::videos::estimate_cost)
