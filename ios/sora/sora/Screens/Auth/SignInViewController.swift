@@ -8,8 +8,8 @@ final class SignInViewController: UIViewController {
 
     private lazy var logoLabel: UILabel = {
         let label = UILabel()
-        label.text = "Sora"
-        label.font = .systemFont(ofSize: 64, weight: .bold)
+        label.text = "Sora Engine"
+        label.font = .systemFont(ofSize: 48, weight: .bold)
         label.textColor = .label
         label.translatesAutoresizingMaskIntoConstraints = false
         return label

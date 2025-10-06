@@ -151,7 +151,7 @@ final class HomeViewController: UIViewController {
     }
 
     private func setupNavigationBar() {
-        title = "Sora"
+        title = "Sora Engine"
         navigationController?.navigationBar.prefersLargeTitles = true
 
         let signOutButton = UIBarButtonItem(
