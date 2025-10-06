@@ -1,7 +1,13 @@
 use crate::error::AppError;
 use crate::models::{User, Video, CreditTransaction};
-use worker::{Env, D1Database};
+use worker::{Env, D1Database, wasm_bindgen::JsValue};
 use chrono::Utc;
+use serde::Deserialize;
+
+#[derive(Deserialize)]
+struct CountResult {
+    count: f64,
+}
 
 pub async fn get_or_create_user(
     env: &Env,
@@ -21,17 +27,35 @@ pub async fn get_or_create_user(
         return Ok((user, false));
     }
 
-    let user = User::new(apple_user_id.to_string(), email.clone());
+    use crate::pricing::WELCOME_CREDITS;
+
+    let mut user = User::new(apple_user_id.to_string(), email.clone());
+    user.credits_balance = WELCOME_CREDITS;
 
     db.prepare("INSERT INTO users (id, apple_user_id, email, credits_balance, total_videos_generated, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)")
         .bind(&[
             user.id.clone().into(),
             user.apple_user_id.clone().into(),
             email.unwrap_or_default().into(),
-            user.credits_balance.into(),
-            user.total_videos_generated.into(),
+            (user.credits_balance as f64).into(),
+            (user.total_videos_generated as f64).into(),
             user.created_at.to_rfc3339().into(),
             user.updated_at.to_rfc3339().into(),
+        ])?
+        .run()
+        .await
+        .map_err(|e| AppError::DatabaseError(e.to_string()))?;
+
+    let transaction_id = uuid::Uuid::new_v4().to_string();
+    db.prepare("INSERT INTO credit_transactions (id, user_id, amount, balance_after, transaction_type, description, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)")
+        .bind(&[
+            transaction_id.into(),
+            user.id.clone().into(),
+            (WELCOME_CREDITS as f64).into(),
+            (WELCOME_CREDITS as f64).into(),
+            "welcome".into(),
+            "Welcome bonus - Try your first video for free!".into(),
+            Utc::now().to_rfc3339().into(),
         ])?
         .run()
         .await
@@ -64,7 +88,7 @@ pub async fn insert_video(env: &Env, video: &Video) -> Result<(), AppError> {
             video.prompt.clone().into(),
             video.size.clone().into(),
             video.seconds.into(),
-            video.credits_cost.into(),
+            (video.credits_cost as f64).into(),
             video.progress.into(),
             video.created_at.to_rfc3339().into(),
         ])?
@@ -181,13 +205,14 @@ pub async fn list_user_videos(
         .results::<Video>()
         .map_err(|e| AppError::DatabaseError(e.to_string()))?;
 
-    let total: i64 = db
+    let count_result: Option<CountResult> = db
         .prepare("SELECT COUNT(*) as count FROM videos WHERE user_id = ?")
         .bind(&[user_id.into()])?
-        .first::<i64>(None)
+        .first(None)
         .await
-        .map_err(|e| AppError::DatabaseError(e.to_string()))?
-        .unwrap_or(0);
+        .map_err(|e| AppError::DatabaseError(e.to_string()))?;
+
+    let total = count_result.map(|r| r.count as i64).unwrap_or(0);
 
     Ok((videos, total))
 }
@@ -209,12 +234,12 @@ pub async fn insert_transaction(
         .bind(&[
             transaction_id.into(),
             user_id.into(),
-            amount.into(),
-            balance_after.into(),
+            (amount as f64).into(),
+            (balance_after as f64).into(),
             transaction_type.into(),
             description.into(),
-            video_id.unwrap_or("").into(),
-            revenuecat_transaction_id.unwrap_or("").into(),
+            video_id.map(|v| JsValue::from_str(v)).unwrap_or(JsValue::NULL),
+            revenuecat_transaction_id.map(|v| JsValue::from_str(v)).unwrap_or(JsValue::NULL),
             Utc::now().to_rfc3339().into(),
         ])?
         .run()

@@ -13,6 +13,7 @@ async fn apple_sign_in_inner(
     })?;
 
     let (apple_user_id, email) = auth::verify_apple_token(&body.identity_token, &ctx.env).await?;
+
     let (user, is_new) = db::get_or_create_user(&ctx.env, &apple_user_id, email).await?;
 
     let response = AuthResponse {
@@ -21,7 +22,17 @@ async fn apple_sign_in_inner(
         created: is_new,
     };
 
-    Response::from_json(&response).map_err(|e| e.into())
+    let json_string = serde_json::to_string(&response).map_err(|e| {
+        AppError::InternalError(format!("JSON serialization failed: {}", e))
+    })?;
+
+    let mut response = Response::ok(json_string).map_err(|e| {
+        AppError::InternalError(format!("Response creation failed: {}", e))
+    })?;
+
+    response.headers_mut().set("Content-Type", "application/json")?;
+
+    Ok(response)
 }
 
 pub async fn apple_sign_in(req: Request, ctx: RouteContext<()>) -> worker::Result<Response> {

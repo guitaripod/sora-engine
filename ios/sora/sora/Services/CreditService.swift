@@ -18,7 +18,7 @@ final class CreditService: CreditServiceProtocol {
         AppLogger.network.info("Fetching credit balance")
 
         let response: CreditBalance = try await networkManager.request(.creditBalance)
-        return response.balance
+        return response.creditsBalance
     }
 
     func getCreditPacks() async throws -> [CreditPack] {

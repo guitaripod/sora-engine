@@ -76,7 +76,9 @@ pub struct AppleTokenRequest {
 
 #[derive(Debug, Serialize)]
 pub struct AuthResponse {
+    #[serde(rename = "user_id")]
     pub user_id: String,
+    #[serde(rename = "credits_balance")]
     pub credits_balance: i64,
     pub created: bool,
 }

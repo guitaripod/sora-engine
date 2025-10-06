@@ -13,8 +13,8 @@ pub async fn deduct_credits_with_lock(
         .map_err(|e| AppError::InternalError(format!("Failed to get DB: {}", e)))?;
 
     database
-        .prepare("INSERT INTO user_locks (user_id, video_id) VALUES (?, ?)")
-        .bind(&[user_id.into(), video_id.into()])?
+        .prepare("INSERT INTO user_locks (user_id) VALUES (?)")
+        .bind(&[user_id.into()])?
         .run()
         .await
         .map_err(|_| AppError::ConcurrentGeneration)?;
@@ -30,7 +30,7 @@ pub async fn deduct_credits_with_lock(
 
     database
         .prepare("UPDATE users SET credits_balance = ?, total_videos_generated = total_videos_generated + 1, updated_at = ? WHERE id = ?")
-        .bind(&[new_balance.into(), chrono::Utc::now().to_rfc3339().into(), user_id.into()])?
+        .bind(&[(new_balance as f64).into(), chrono::Utc::now().to_rfc3339().into(), user_id.into()])?
         .run()
         .await
         .map_err(|e| AppError::DatabaseError(e.to_string()))?;
@@ -42,7 +42,7 @@ pub async fn deduct_credits_with_lock(
         new_balance,
         "video_generation",
         "Video generation cost",
-        Some(video_id),
+        None,
         None,
     )
     .await?;
@@ -80,7 +80,7 @@ pub async fn add_credits(
 
     db.prepare("UPDATE users SET credits_balance = ?, updated_at = ? WHERE id = ?")
         .bind(&[
-            new_balance.into(),
+            (new_balance as f64).into(),
             chrono::Utc::now().to_rfc3339().into(),
             user_id.into(),
         ])?
@@ -118,7 +118,7 @@ pub async fn refund_credits(
 
     db.prepare("UPDATE users SET credits_balance = ?, updated_at = ? WHERE id = ?")
         .bind(&[
-            new_balance.into(),
+            (new_balance as f64).into(),
             chrono::Utc::now().to_rfc3339().into(),
             user_id.into(),
         ])?
@@ -133,7 +133,7 @@ pub async fn refund_credits(
         new_balance,
         "refund",
         "Video generation failed - credits refunded",
-        Some(video_id),
+        None,
         None,
     )
     .await?;

@@ -37,9 +37,16 @@ pub async fn openai_webhook(req: Request, ctx: RouteContext<()>) -> worker::Resu
 async fn handle_video_completed(ctx: &RouteContext<()>, openai_video_id: &str) -> Result<(), AppError> {
     let _video_status = openai_client::get_video_status(&ctx.env, openai_video_id).await?;
 
-    let video_url = openai_client::build_download_url(openai_video_id, "video");
-    let thumbnail_url = openai_client::build_download_url(openai_video_id, "thumbnail");
-    let spritesheet_url = openai_client::build_download_url(openai_video_id, "spritesheet");
+    let video = db::get_video_by_openai_id(&ctx.env, openai_video_id).await?;
+
+    let service_url = ctx.env
+        .var("SERVICE_URL")
+        .map_err(|_| AppError::InternalError("SERVICE_URL not configured".into()))?
+        .to_string();
+
+    let video_url = format!("{}/v1/videos/{}/proxy?variant=video&user_id={}", service_url, openai_video_id, video.user_id);
+    let thumbnail_url = format!("{}/v1/videos/{}/proxy?variant=thumbnail&user_id={}", service_url, openai_video_id, video.user_id);
+    let spritesheet_url = format!("{}/v1/videos/{}/proxy?variant=spritesheet&user_id={}", service_url, openai_video_id, video.user_id);
 
     db::update_video_completed(
         &ctx.env,

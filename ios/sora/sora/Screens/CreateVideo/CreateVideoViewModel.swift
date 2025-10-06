@@ -4,7 +4,7 @@ import Combine
 final class CreateVideoViewModel: ObservableObject {
     @Published var prompt: String = ""
     @Published var selectedModel: String = "sora-2"
-    @Published var selectedDuration: Int = 5
+    @Published var selectedDuration: Int = 4
     @Published var estimatedCost: Int = 0
     @Published var currentBalance: Int = 0
     @Published var isEstimating: Bool = false
@@ -18,7 +18,7 @@ final class CreateVideoViewModel: ObservableObject {
     private var estimateTask: Task<Void, Never>?
 
     let models = ["sora-2", "sora-2-pro"]
-    let durations = [5, 8]
+    let durations = [4, 8, 12]
 
     init(
         coordinator: AppCoordinator,
