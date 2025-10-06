@@ -1,0 +1,412 @@
+openapi: 3.0.0
+info:
+  title: Sora Engine API
+  description: AI video generation API powered by OpenAI Sora for iOS apps
+  version: 1.0.0
+servers:
+  - url: https://sora-engine.guitaripod.workers.dev
+    description: Production server
+
+security:
+  - BearerAuth: []
+
+paths:
+  /:
+    get:
+      summary: Landing page
+      security: []
+      responses:
+        '200':
+          description: HTML landing page
+
+  /docs:
+    get:
+      summary: API documentation (Swagger UI)
+      security: []
+      responses:
+        '200':
+          description: HTML Swagger UI
+
+  /v1/auth/apple/token:
+    post:
+      summary: Sign in with Apple
+      security: []
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                identity_token:
+                  type: string
+                  description: Apple identity token from iOS
+              required:
+                - identity_token
+      responses:
+        '200':
+          description: Authentication successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user_id:
+                    type: string
+                  credits_balance:
+                    type: integer
+                  created:
+                    type: boolean
+
+  /v1/auth/me:
+    get:
+      summary: Get current user info
+      tags:
+        - Authentication
+      responses:
+        '200':
+          description: User information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+
+  /v1/videos:
+    post:
+      summary: Create a new video
+      tags:
+        - Videos
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                model:
+                  type: string
+                  enum: [sora-2, sora-2-pro]
+                prompt:
+                  type: string
+                  minLength: 1
+                  maxLength: 2000
+                size:
+                  type: string
+                  enum: ["720x1280", "1280x720"]
+                seconds:
+                  type: integer
+                  enum: [5, 8, 10]
+              required:
+                - model
+                - prompt
+                - size
+                - seconds
+      responses:
+        '200':
+          description: Video generation started
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  status:
+                    type: string
+                  credits_cost:
+                    type: integer
+                  new_balance:
+                    type: integer
+                  estimated_wait_seconds:
+                    type: integer
+    get:
+      summary: List user's videos
+      tags:
+        - Videos
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+            maximum: 100
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+      responses:
+        '200':
+          description: List of videos
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  videos:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Video'
+                  has_more:
+                    type: boolean
+                  total_count:
+                    type: integer
+
+  /v1/videos/{id}:
+    get:
+      summary: Get video status and details
+      tags:
+        - Videos
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Video details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Video'
+
+  /v1/videos/estimate:
+    post:
+      summary: Estimate credit cost before generation
+      tags:
+        - Videos
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                model:
+                  type: string
+                  enum: [sora-2, sora-2-pro]
+                size:
+                  type: string
+                  enum: ["720x1280", "1280x720"]
+                seconds:
+                  type: integer
+                  enum: [5, 8, 10]
+              required:
+                - model
+                - size
+                - seconds
+      responses:
+        '200':
+          description: Cost estimate
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  credits_cost:
+                    type: integer
+                  usd_equivalent:
+                    type: string
+                  current_balance:
+                    type: integer
+                  sufficient_credits:
+                    type: boolean
+
+  /v1/credits/balance:
+    get:
+      summary: Get current credit balance
+      tags:
+        - Credits
+      responses:
+        '200':
+          description: Credit balance
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  credits_balance:
+                    type: integer
+                  usd_equivalent:
+                    type: string
+
+  /v1/credits/transactions:
+    get:
+      summary: Get credit transaction history
+      tags:
+        - Credits
+      responses:
+        '200':
+          description: Transaction list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Transaction'
+
+  /v1/credits/packs:
+    get:
+      summary: Get available credit packs
+      tags:
+        - Credits
+      security: []
+      responses:
+        '200':
+          description: Available credit packs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    credits:
+                      type: integer
+                    price_usd:
+                      type: number
+                    popular:
+                      type: boolean
+
+  /v1/credits/purchase/revenuecat/validate:
+    post:
+      summary: Validate iOS in-app purchase (RevenueCat)
+      tags:
+        - Credits
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                transaction_id:
+                  type: string
+                product_id:
+                  type: string
+                receipt_data:
+                  type: string
+              required:
+                - transaction_id
+                - product_id
+                - receipt_data
+      responses:
+        '200':
+          description: Purchase validated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  credits_added:
+                    type: integer
+                  new_balance:
+                    type: integer
+
+  /v1/webhook/openai:
+    post:
+      summary: OpenAI webhook handler (internal)
+      security: []
+      tags:
+        - Webhooks
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Webhook processed
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      description: User ID obtained from /v1/auth/apple/token
+
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+        credits_balance:
+          type: integer
+        total_videos_generated:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+
+    Video:
+      type: object
+      properties:
+        id:
+          type: string
+        user_id:
+          type: string
+        openai_video_id:
+          type: string
+        status:
+          type: string
+          enum: [queued, in_progress, completed, failed]
+        model:
+          type: string
+        prompt:
+          type: string
+        size:
+          type: string
+        seconds:
+          type: integer
+        video_url:
+          type: string
+        thumbnail_url:
+          type: string
+        spritesheet_url:
+          type: string
+        download_url_expires_at:
+          type: string
+          format: date-time
+        credits_cost:
+          type: integer
+        progress:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        completed_at:
+          type: string
+          format: date-time
+        error_message:
+          type: string
+
+    Transaction:
+      type: object
+      properties:
+        id:
+          type: string
+        user_id:
+          type: string
+        amount:
+          type: integer
+        balance_after:
+          type: integer
+        transaction_type:
+          type: string
+        description:
+          type: string
+        created_at:
+          type: string
+          format: date-time

@@ -1,0 +1,29 @@
+name = "sora-engine"
+main = "build/worker/shim.mjs"
+compatibility_date = "2025-01-01"
+
+[build]
+command = "cargo install -q worker-build && ~/.cargo/bin/worker-build --release"
+
+[vars]
+ENVIRONMENT = "production"
+SERVICE_URL = "https://sora-engine.guitaripod.workers.dev"
+MAX_VIDEOS_PER_DAY = "20"
+STARTER_PACK_CREDITS = "1000"
+STARTER_PACK_PRICE_USD = "9.99"
+APPLE_TEAM_ID = "P4DQK6SRKR"
+APPLE_CLIENT_ID = "com.guitaripod.sora"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "sora_engine"
+database_id = "f1acf990-33df-41cf-8ec1-58bfb5176ad7"
+
+[observability]
+enabled = true
+
+[observability.logs]
+enabled = true
+
+[env.development]
+vars = { ENVIRONMENT = "development", SERVICE_URL = "http://localhost:8787" }

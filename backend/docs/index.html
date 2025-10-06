@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sora Engine - AI Video Generation API</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #ffffff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 4rem 2rem;
+      flex: 1;
+    }
+    h1 {
+      font-size: 3.5rem;
+      margin-bottom: 1rem;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+    .tagline {
+      font-size: 1.5rem;
+      opacity: 0.95;
+      margin-bottom: 3rem;
+    }
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      margin: 3rem 0;
+    }
+    .feature {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 2rem;
+      border-radius: 12px;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    .feature h3 {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+      color: #ffd700;
+    }
+    .pricing {
+      background: rgba(255, 255, 255, 0.15);
+      padding: 3rem;
+      border-radius: 16px;
+      margin: 3rem 0;
+      text-align: center;
+    }
+    .pricing h2 {
+      font-size: 2rem;
+      margin-bottom: 2rem;
+      color: #ffd700;
+    }
+    .price {
+      font-size: 4rem;
+      font-weight: bold;
+      margin-bottom: 1rem;
+    }
+    .cta {
+      display: inline-block;
+      background: #ffd700;
+      color: #667eea;
+      padding: 1rem 3rem;
+      border-radius: 50px;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 1.2rem;
+      margin-top: 2rem;
+      transition: transform 0.2s;
+    }
+    .cta:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(255, 215, 0, 0.4);
+    }
+    .footer {
+      text-align: center;
+      padding: 2rem;
+      opacity: 0.8;
+      border-top: 1px solid rgba(255, 255, 255, 0.2);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎬 Sora Engine</h1>
+    <p class="tagline">Create stunning AI-generated videos with OpenAI's Sora</p>
+
+    <div class="features">
+      <div class="feature">
+        <h3>⚡ Lightning Fast</h3>
+        <p>Generate professional-quality videos in minutes, not hours. Powered by OpenAI's cutting-edge Sora model.</p>
+      </div>
+      <div class="feature">
+        <h3>📱 iOS Native</h3>
+        <p>Seamless Sign in with Apple integration. Built for mobile-first creators.</p>
+      </div>
+      <div class="feature">
+        <h3>💰 Simple Pricing</h3>
+        <p>One pack, one price. No subscriptions, no surprises. Pay only for what you create.</p>
+      </div>
+    </div>
+
+    <div class="pricing">
+      <h2>Starter Pack</h2>
+      <div class="price">$9.99</div>
+      <p style="font-size: 1.3rem; margin-bottom: 1rem;">1,000 Credits</p>
+      <p style="opacity: 0.9;">Create up to 10 amazing videos</p>
+      <a href="/docs" class="cta">View API Documentation</a>
+    </div>
+
+    <div class="features">
+      <div class="feature">
+        <h3>🎨 Multiple Models</h3>
+        <p><strong>sora-2:</strong> Fast iterations (100-200 credits)<br>
+        <strong>sora-2-pro:</strong> Premium quality (280-560 credits)</p>
+      </div>
+      <div class="feature">
+        <h3>🎞️ Flexible Durations</h3>
+        <p>Generate 5, 8, or 10-second videos in portrait or landscape format.</p>
+      </div>
+      <div class="feature">
+        <h3>🔒 Secure & Private</h3>
+        <p>Your videos are yours. URLs valid for 24 hours. Enterprise-grade security.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <p>Sora Engine API | Powered by OpenAI Sora | <a href="/privacy-policy" style="color: #ffd700;">Privacy Policy</a></p>
+  </div>
+</body>
+</html>
