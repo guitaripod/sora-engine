@@ -1,0 +1,47 @@
+# Backend (Rust + Cloudflare Workers)
+backend/target/
+backend/build/
+backend/.wrangler/
+backend/Cargo.lock
+
+# iOS
+ios/**/DerivedData/
+ios/**/build/
+ios/**/*.xcworkspace/xcuserdata/
+ios/**/*.xcodeproj/xcuserdata/
+ios/**/*.xcodeproj/project.xcworkspace/xcuserdata/
+ios/**/Pods/
+ios/**/.build/
+ios/**/*.swiftpm
+ios/**/.swiftpm/
+
+# Xcode
+*.xcuserstate
+*.xcuserdatad
+xcuserdata/
+*.moved-aside
+*.mode1v3
+*.mode2v3
+*.perspectivev3
+*.pbxuser
+!default.pbxuser
+!default.mode1v3
+!default.mode2v3
+!default.perspectivev3
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Environment
+.env
+.env.local
