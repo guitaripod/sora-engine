@@ -6,8 +6,47 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		10CF86225D2736C7402A69FC /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E4C3FC29BCBA91B1176E81E /* Extensions.swift */; };
+		25BE52E7E277A331677D6DBE /* CreditService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90777890398B2C98D400B65D /* CreditService.swift */; };
+		2726D767DB40927B3ADEB04F /* CreateVideoViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 440F7346DE8FE86958E91BA0 /* CreateVideoViewModel.swift */; };
+		2D9C546FCB0BCF0A8DD7C588 /* NetworkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDF98B44AAC5D66925C5445C /* NetworkManager.swift */; };
+		3257BE2568C1B73E7AE6B753 /* KeychainManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 162ACFB84C07C76FA3CE6B65 /* KeychainManager.swift */; };
+		41FBF2B32BA1B9314E5ADC16 /* AppCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8075B862D547754245D4DDCA /* AppCoordinator.swift */; };
+		49D9928DCADDC9E9DB4448F1 /* HomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFEC532B5CB2AD1E5A3EE199 /* HomeViewController.swift */; };
+		60B516D181AE1825564B0F80 /* SignInViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1278130715F336CFAE680518 /* SignInViewController.swift */; };
+		6529FF612E279EB0A9DF2276 /* APIModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = E004A0EA940811F3086F299A /* APIModels.swift */; };
+		730D938D1B7B71E1592F90D9 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39709F2BBBE5CCE22C7FF07B /* Constants.swift */; };
+		75F5812728B94FE311B95A36 /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C3BB69CC531A459FE634CA1 /* AuthService.swift */; };
+		77A95DEDA5F78B2376056E08 /* CreateVideoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDC931ED352297D860B36040 /* CreateVideoViewController.swift */; };
+		7C0F5A4C4E67D574A1C96A50 /* AppLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92BF8EF64CBEAB13D497C6CF /* AppLogger.swift */; };
+		7CD72ABBEFB220625E4F93A5 /* VideoService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45D3B60D2B3FE374A816061D /* VideoService.swift */; };
+		7F6537637DB327872D18BF89 /* SignInViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B38DC04A00FCC3705EC7500 /* SignInViewModel.swift */; };
+		AE93C8A5C150C9D3716358BA /* VideoCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53CCA9EA452E81ACFFFFB27A /* VideoCell.swift */; };
+		C520FC4A13C6AC8956D50DBA /* VideoPlayerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9511320EB46342F5412FF31 /* VideoPlayerViewController.swift */; };
+		E7836FC08D33EA17C725BC33 /* HomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CDCB76E156555A6361F31A5 /* HomeViewModel.swift */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
+		0C3BB69CC531A459FE634CA1 /* AuthService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AuthService.swift; path = sora/Services/AuthService.swift; sourceTree = "<group>"; };
+		1278130715F336CFAE680518 /* SignInViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SignInViewController.swift; path = sora/Screens/Auth/SignInViewController.swift; sourceTree = "<group>"; };
+		162ACFB84C07C76FA3CE6B65 /* KeychainManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = KeychainManager.swift; path = sora/Utils/KeychainManager.swift; sourceTree = "<group>"; };
 		2CFD009C2E944CF000A66856 /* sora.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = sora.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		39709F2BBBE5CCE22C7FF07B /* Constants.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Constants.swift; path = sora/Utils/Constants.swift; sourceTree = "<group>"; };
+		3CDCB76E156555A6361F31A5 /* HomeViewModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = HomeViewModel.swift; path = sora/Screens/Home/HomeViewModel.swift; sourceTree = "<group>"; };
+		440F7346DE8FE86958E91BA0 /* CreateVideoViewModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CreateVideoViewModel.swift; path = sora/Screens/CreateVideo/CreateVideoViewModel.swift; sourceTree = "<group>"; };
+		45D3B60D2B3FE374A816061D /* VideoService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = VideoService.swift; path = sora/Services/VideoService.swift; sourceTree = "<group>"; };
+		53CCA9EA452E81ACFFFFB27A /* VideoCell.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = VideoCell.swift; path = sora/Views/VideoCell.swift; sourceTree = "<group>"; };
+		5B38DC04A00FCC3705EC7500 /* SignInViewModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SignInViewModel.swift; path = sora/Screens/Auth/SignInViewModel.swift; sourceTree = "<group>"; };
+		8075B862D547754245D4DDCA /* AppCoordinator.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AppCoordinator.swift; path = sora/App/AppCoordinator.swift; sourceTree = "<group>"; };
+		8E4C3FC29BCBA91B1176E81E /* Extensions.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Extensions.swift; path = sora/Utils/Extensions.swift; sourceTree = "<group>"; };
+		90777890398B2C98D400B65D /* CreditService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CreditService.swift; path = sora/Services/CreditService.swift; sourceTree = "<group>"; };
+		92BF8EF64CBEAB13D497C6CF /* AppLogger.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AppLogger.swift; path = sora/Utils/AppLogger.swift; sourceTree = "<group>"; };
+		C9511320EB46342F5412FF31 /* VideoPlayerViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = VideoPlayerViewController.swift; path = sora/Screens/VideoPlayer/VideoPlayerViewController.swift; sourceTree = "<group>"; };
+		CDF98B44AAC5D66925C5445C /* NetworkManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = NetworkManager.swift; path = sora/Networking/NetworkManager.swift; sourceTree = "<group>"; };
+		CFEC532B5CB2AD1E5A3EE199 /* HomeViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = HomeViewController.swift; path = sora/Screens/Home/HomeViewController.swift; sourceTree = "<group>"; };
+		E004A0EA940811F3086F299A /* APIModels.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = APIModels.swift; path = sora/Networking/APIModels.swift; sourceTree = "<group>"; };
+		EDC931ED352297D860B36040 /* CreateVideoViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CreateVideoViewController.swift; path = sora/Screens/CreateVideo/CreateVideoViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -47,6 +86,24 @@
 			children = (
 				2CFD009E2E944CF000A66856 /* sora */,
 				2CFD009D2E944CF000A66856 /* Products */,
+				8075B862D547754245D4DDCA /* AppCoordinator.swift */,
+				92BF8EF64CBEAB13D497C6CF /* AppLogger.swift */,
+				39709F2BBBE5CCE22C7FF07B /* Constants.swift */,
+				8E4C3FC29BCBA91B1176E81E /* Extensions.swift */,
+				162ACFB84C07C76FA3CE6B65 /* KeychainManager.swift */,
+				E004A0EA940811F3086F299A /* APIModels.swift */,
+				CDF98B44AAC5D66925C5445C /* NetworkManager.swift */,
+				0C3BB69CC531A459FE634CA1 /* AuthService.swift */,
+				45D3B60D2B3FE374A816061D /* VideoService.swift */,
+				90777890398B2C98D400B65D /* CreditService.swift */,
+				5B38DC04A00FCC3705EC7500 /* SignInViewModel.swift */,
+				1278130715F336CFAE680518 /* SignInViewController.swift */,
+				3CDCB76E156555A6361F31A5 /* HomeViewModel.swift */,
+				CFEC532B5CB2AD1E5A3EE199 /* HomeViewController.swift */,
+				440F7346DE8FE86958E91BA0 /* CreateVideoViewModel.swift */,
+				EDC931ED352297D860B36040 /* CreateVideoViewController.swift */,
+				C9511320EB46342F5412FF31 /* VideoPlayerViewController.swift */,
+				53CCA9EA452E81ACFFFFB27A /* VideoCell.swift */,
 			);
 			sourceTree = "<group>";
 		};
@@ -77,8 +134,6 @@
 				2CFD009E2E944CF000A66856 /* sora */,
 			);
 			name = sora;
-			packageProductDependencies = (
-			);
 			productName = sora;
 			productReference = 2CFD009C2E944CF000A66856 /* sora.app */;
 			productType = "com.apple.product-type.application";
@@ -132,6 +187,24 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				41FBF2B32BA1B9314E5ADC16 /* AppCoordinator.swift in Sources */,
+				7C0F5A4C4E67D574A1C96A50 /* AppLogger.swift in Sources */,
+				730D938D1B7B71E1592F90D9 /* Constants.swift in Sources */,
+				10CF86225D2736C7402A69FC /* Extensions.swift in Sources */,
+				3257BE2568C1B73E7AE6B753 /* KeychainManager.swift in Sources */,
+				6529FF612E279EB0A9DF2276 /* APIModels.swift in Sources */,
+				2D9C546FCB0BCF0A8DD7C588 /* NetworkManager.swift in Sources */,
+				75F5812728B94FE311B95A36 /* AuthService.swift in Sources */,
+				7CD72ABBEFB220625E4F93A5 /* VideoService.swift in Sources */,
+				25BE52E7E277A331677D6DBE /* CreditService.swift in Sources */,
+				7F6537637DB327872D18BF89 /* SignInViewModel.swift in Sources */,
+				60B516D181AE1825564B0F80 /* SignInViewController.swift in Sources */,
+				E7836FC08D33EA17C725BC33 /* HomeViewModel.swift in Sources */,
+				49D9928DCADDC9E9DB4448F1 /* HomeViewController.swift in Sources */,
+				2726D767DB40927B3ADEB04F /* CreateVideoViewModel.swift in Sources */,
+				77A95DEDA5F78B2376056E08 /* CreateVideoViewController.swift in Sources */,
+				C520FC4A13C6AC8956D50DBA /* VideoPlayerViewController.swift in Sources */,
+				AE93C8A5C150C9D3716358BA /* VideoCell.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
