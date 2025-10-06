@@ -162,12 +162,15 @@ Credits: 1,000
 
 | Model | Duration | Credits | USD | OpenAI Cost | Margin |
 |-------|----------|---------|-----|-------------|--------|
-| sora-2 | 5s | 100 | $1.00 | $0.50 | 100% |
+| sora-2 | 4s | 100 | $1.00 | $0.50 | 100% |
 | sora-2 | 8s | 150 | $1.50 | $0.80 | 88% |
-| sora-2-pro | 5s | 280 | $2.80 | $1.50 | 87% |
+| sora-2 | 12s | 200 | $2.00 | $1.10 | 82% |
+| sora-2-pro | 4s | 280 | $2.80 | $1.50 | 87% |
 | sora-2-pro | 8s | 450 | $4.50 | $2.40 | 88% |
+| sora-2-pro | 12s | 560 | $5.60 | $3.00 | 87% |
 
-Starter Pack: **$9.99 = 1,000 credits** (10 videos with sora-2 5s)
+Starter Pack: **$9.99 = 1,000 credits** (10 videos with sora-2 4s)
+Welcome Bonus: **100 credits** (1 free video with sora-2 4s)
 
 ## Repository Structure
 
