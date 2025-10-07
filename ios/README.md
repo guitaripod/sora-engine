@@ -9,7 +9,7 @@ This directory will contain the SwiftUI iOS app.
 ## Planned Features
 
 - Sign in with Apple authentication
-- RevenueCat integration for credit purchases
+- Apple In-App Purchase for credit purchases
 - Video generation interface
 - Video gallery and playback
 - Credit balance display
@@ -35,7 +35,7 @@ See [API Documentation](https://sora-engine.guitaripod.workers.dev/docs) for ava
 
 1. Create Xcode project with Bundle ID: `com.guitaripod.sora`
 2. Enable Sign in with Apple capability
-3. Configure RevenueCat with product ID: `sora_starter_pack`
+3. Configure Apple IAP with product ID: `sora_starter_pack`
 4. Integrate with backend API endpoints
 
 ## Authentication Flow

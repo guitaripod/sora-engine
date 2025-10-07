@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 Sora Engine is an AI-powered video generation platform using OpenAI's Sora API. The project consists of two main components:
 
 1. **Backend**: Rust-based Cloudflare Worker providing REST API for video generation, authentication, and credit management
-2. **iOS App**: Native iOS application with Sign in with Apple and RevenueCat integration
+2. **iOS App**: Native iOS application with Sign in with Apple
 
 ## Backend (Cloudflare Worker)
 
@@ -120,8 +120,8 @@ xcodebuild -project sora.xcodeproj -scheme sora clean
 - **Bundle ID**: com.guitaripod.sora
 - **Team ID**: P4DQK6SRKR
 - **Authentication**: Sign in with Apple
-- **Payments**: RevenueCat for in-app purchases
-- **Networking**: URLSession for backend API calls
+- **Payments**: Apple In-App Purchase
+- **Networking**: URLSession
 
 ### Coding Practices
 
@@ -150,13 +150,9 @@ Key endpoints:
 - `POST /v1/videos` - Create video generation
 - `GET /v1/videos/:id` - Get video status
 - `GET /v1/credits/balance` - Get credit balance
-- `POST /v1/credits/purchase/revenuecat/validate` - Validate purchase
+- `POST /v1/credits/purchase/apple/validate` - Validate Apple IAP
 
-### RevenueCat Configuration
-
-Product ID: `sora_starter_pack`
-Price: $9.99
-Credits: 1,000
+Product: **Starter Pack** - $9.99 for 1,000 credits
 
 ## Pricing Model
 

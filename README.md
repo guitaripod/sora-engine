@@ -36,7 +36,6 @@ wrangler dev
 
 Coming soon. Will be built with SwiftUI and integrate with:
 - Sign in with Apple
-- RevenueCat for in-app purchases
 - Backend API for video generation
 
 ## Features
@@ -66,7 +65,7 @@ Starter Pack: **$9.99 = 1,000 credits** (10 videos with sora-2 5s)
 - **Database**: Cloudflare D1 (SQLite)
 - **API**: OpenAI Sora
 - **Auth**: Apple Sign In
-- **Payments**: RevenueCat (iOS IAP)
+- **Payments**: iOS IAP
 
 ## Documentation
 
@@ -74,7 +73,3 @@ Starter Pack: **$9.99 = 1,000 credits** (10 videos with sora-2 5s)
 - [Deployment Guide](backend/DEPLOYMENT.md) - Production setup
 - [API Docs](https://sora-engine.guitaripod.workers.dev/docs) - Swagger UI
 - [OpenAPI Spec](https://sora-engine.guitaripod.workers.dev/openapi.yaml) - Full API spec
-
-## License
-
-MIT

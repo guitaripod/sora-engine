@@ -16,7 +16,7 @@
 - **Runtime**: Cloudflare Workers (Rust + WASM)
 - **Database**: Cloudflare D1 (SQLite)
 - **Authentication**: Sign in with Apple
-- **Payments**: RevenueCat (iOS IAP)
+- **Payments**: Apple In-App Purchase
 - **Video API**: OpenAI Sora
 
 ## Quick Start
@@ -68,7 +68,7 @@ npx wrangler deploy
 - `GET /v1/credits/balance` - Get balance
 - `GET /v1/credits/transactions` - Transaction history
 - `GET /v1/credits/packs` - Available packs
-- `POST /v1/credits/purchase/revenuecat/validate` - Validate IAP
+- `POST /v1/credits/purchase/apple/validate` - Validate Apple IAP
 
 ### Webhooks
 - `POST /v1/webhook/openai` - OpenAI webhook
@@ -89,12 +89,11 @@ npx wrangler deploy
 ```
 iOS App (SwiftUI)
     ↓
-Sign in with Apple
+Sign in with Apple + Apple IAP
     ↓
 Cloudflare Worker (Rust)
     ├─ D1 Database (users, videos, credits)
-    ├─ OpenAI Sora API
-    └─ RevenueCat (IAP validation)
+    └─ OpenAI Sora API
 ```
 
 ## Database Schema
@@ -134,8 +133,6 @@ APPLE_CLIENT_ID = "com.yourname.sora"
 ## Secrets (use wrangler secret put)
 
 - `OPENAI_API_KEY` - OpenAI API key
-- `APPLE_PRIVATE_KEY` - Apple private key for JWT (optional)
-- `REVENUECAT_API_KEY` - RevenueCat API key (optional)
 - `OPENAI_WEBHOOK_SECRET` - OpenAI webhook secret (optional)
 
 ## Development

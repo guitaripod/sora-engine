@@ -36,7 +36,7 @@
 - `GET /v1/credits/balance` - Get balance
 - `GET /v1/credits/transactions` - Get transactions
 - `GET /v1/credits/packs` - Get available packs
-- `POST /v1/credits/purchase/revenuecat/validate` - Validate iOS purchase
+- `POST /v1/credits/purchase/apple/validate` - Validate Apple IAP
 
 ### Webhooks
 - `POST /v1/webhook/openai` - OpenAI completion webhook
@@ -75,7 +75,7 @@ Your iOS app needs to:
 - Send the identity token to `POST /v1/auth/apple/token`
 - Store the returned `user_id` as the Bearer token
 
-### 2. Configure RevenueCat
+### 2. Configure Apple IAP
 - Product ID: `sora_starter_pack`
 - Price: $9.99
 - Credits: 1,000
@@ -90,8 +90,8 @@ POST /v1/auth/apple/token
 }
 // Response: { "user_id": "abc123", "credits_balance": 0, "created": true }
 
-// 2. Purchase credits (via RevenueCat)
-POST /v1/credits/purchase/revenuecat/validate
+// 2. Purchase credits (via Apple IAP)
+POST /v1/credits/purchase/apple/validate
 Headers: Authorization: Bearer abc123
 {
   "transaction_id": "...",
