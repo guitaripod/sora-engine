@@ -3,12 +3,15 @@ use crate::db;
 use crate::error::AppError;
 use crate::models::OpenAIWebhookEvent;
 use crate::openai_client;
+use uuid::Uuid;
 use worker::{console_log, Request, Response, RouteContext};
 
 async fn openai_webhook_inner(
     mut req: Request,
     ctx: RouteContext<()>,
 ) -> Result<Response, AppError> {
+    verify_webhook_auth(&req, &ctx.env)?;
+
     let body_text = req.text().await.map_err(|_| {
         AppError::BadRequest("Failed to read request body".into())
     })?;
@@ -16,6 +19,13 @@ async fn openai_webhook_inner(
     let event: OpenAIWebhookEvent = serde_json::from_str(&body_text).map_err(|e| {
         AppError::BadRequest(format!("Invalid webhook payload: {}", e))
     })?;
+
+    if is_duplicate_webhook(&ctx.env, &event).await? {
+        console_log!("Duplicate webhook ignored: type={}, video_id={}", event.event_type, event.data.id);
+        return Response::ok("OK").map_err(|e| e.into());
+    }
+
+    store_webhook_event(&ctx.env, &event).await?;
 
     console_log!("Received OpenAI webhook: type={}, video_id={}", event.event_type, event.data.id);
 
@@ -27,7 +37,77 @@ async fn openai_webhook_inner(
         }
     }
 
+    mark_webhook_processed(&ctx.env, &event.data.id, &event.event_type).await?;
+
     Response::ok("OK").map_err(|e| e.into())
+}
+
+fn verify_webhook_auth(req: &Request, env: &worker::Env) -> Result<(), AppError> {
+    let webhook_secret = env.var("WEBHOOK_SECRET")
+        .map_err(|_| AppError::InternalError("WEBHOOK_SECRET not configured".into()))?
+        .to_string();
+
+    let auth_header = req.headers().get("Authorization")
+        .ok().flatten()
+        .ok_or_else(|| AppError::Unauthorized("Missing webhook authentication".into()))?;
+
+    if !auth_header.starts_with("Bearer ") {
+        return Err(AppError::Unauthorized("Invalid webhook auth format".into()));
+    }
+
+    let token = auth_header.trim_start_matches("Bearer ");
+
+    if token != webhook_secret {
+        return Err(AppError::Unauthorized("Invalid webhook secret".into()));
+    }
+
+    Ok(())
+}
+
+async fn is_duplicate_webhook(env: &worker::Env, event: &OpenAIWebhookEvent) -> Result<bool, AppError> {
+    let database = env.d1("DB").map_err(|_| AppError::InternalError("Failed to get DB".into()))?;
+
+    let result = database
+        .prepare("SELECT id FROM webhook_events WHERE openai_video_id = ? AND event_type = ? LIMIT 1")
+        .bind(&[event.data.id.clone().into(), event.event_type.clone().into()])?
+        .first::<String>(None)
+        .await;
+
+    match result {
+        Ok(Some(_)) => Ok(true),
+        Ok(None) => Ok(false),
+        Err(_) => Ok(false),
+    }
+}
+
+async fn store_webhook_event(env: &worker::Env, event: &OpenAIWebhookEvent) -> Result<(), AppError> {
+    let database = env.d1("DB").map_err(|_| AppError::InternalError("Failed to get DB".into()))?;
+
+    let event_id = uuid::Uuid::new_v4().to_string();
+    let payload = serde_json::to_string(event)
+        .map_err(|_| AppError::InternalError("Failed to serialize webhook event".into()))?;
+
+    database
+        .prepare("INSERT INTO webhook_events (id, event_type, openai_video_id, payload, created_at) VALUES (?, ?, ?, ?, datetime('now'))")
+        .bind(&[event_id.into(), event.event_type.clone().into(), event.data.id.clone().into(), payload.into()])?
+        .run()
+        .await
+        .map_err(|e| AppError::DatabaseError(format!("Failed to store webhook event: {:?}", e)))?;
+
+    Ok(())
+}
+
+async fn mark_webhook_processed(env: &worker::Env, openai_video_id: &str, event_type: &str) -> Result<(), AppError> {
+    let database = env.d1("DB").map_err(|_| AppError::InternalError("Failed to get DB".into()))?;
+
+    database
+        .prepare("UPDATE webhook_events SET processed = 1, processed_at = datetime('now') WHERE openai_video_id = ? AND event_type = ?")
+        .bind(&[openai_video_id.into(), event_type.into()])?
+        .run()
+        .await
+        .map_err(|e| AppError::DatabaseError(format!("Failed to mark webhook processed: {:?}", e)))?;
+
+    Ok(())
 }
 
 pub async fn openai_webhook(req: Request, ctx: RouteContext<()>) -> worker::Result<Response> {

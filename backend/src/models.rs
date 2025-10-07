@@ -142,7 +142,7 @@ pub struct RevenueCatValidateResponse {
     pub new_balance: i64,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct OpenAIWebhookEvent {
     pub id: String,
     pub object: String,
@@ -152,7 +152,7 @@ pub struct OpenAIWebhookEvent {
     pub data: OpenAIWebhookData,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct OpenAIWebhookData {
     pub id: String,
 }
