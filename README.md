@@ -6,12 +6,12 @@ AI-powered video generation platform using OpenAI's Sora API.
 
 ```
 sora-engine/
-├── backend/          # Rust Cloudflare Worker (Production Ready)
+├── backend/         # Rust Cloudflare Worker (Production Ready)
 │   ├── src/         # Rust source code
 │   ├── migrations/  # D1 database migrations
 │   ├── docs/        # API documentation & landing page
 │   └── README.md    # Backend documentation
-└── ios/             # iOS App (Coming Soon)
+└── ios/             # iOS App
 ```
 
 ## Quick Start
