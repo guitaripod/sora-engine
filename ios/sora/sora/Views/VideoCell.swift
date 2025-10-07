@@ -179,7 +179,7 @@ final class VideoCell: UICollectionViewCell {
             textContainer.isHidden = true
 
         case .queued:
-            statusLabel.text = "Starting generation..."
+            statusLabel.text = "Creating your video..."
             statusLabel.isHidden = false
             playIconView.isHidden = true
             progressView.isHidden = true
