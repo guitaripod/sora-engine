@@ -1,6 +1,7 @@
 import Foundation
 import Observation
 
+@MainActor
 @Observable
 final class HomeViewModel {
     var credits: Int = 0
@@ -13,7 +14,7 @@ final class HomeViewModel {
     private let videoService: VideoServiceProtocol
     private let creditService: CreditServiceProtocol
     private weak var coordinator: AppCoordinator?
-    private var refreshTimer: Timer?
+    nonisolated(unsafe) private var refreshTimer: Timer?
 
     init(
         coordinator: AppCoordinator,
@@ -114,7 +115,6 @@ final class HomeViewModel {
         stopAutoRefresh()
 
         refreshTimer = Timer.scheduledTimer(withTimeInterval: 30.0, repeats: true) { [weak self] _ in
-            guard let self = self else { return }
             Task { @MainActor [weak self] in
                 await self?.refreshActiveVideos()
             }

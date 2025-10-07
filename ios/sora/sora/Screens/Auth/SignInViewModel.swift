@@ -33,7 +33,7 @@ final class SignInViewModel: NSObject, ObservableObject {
         errorMessage = nil
 
         do {
-            let response = try await authService.signInWithApple(identityToken: identityToken)
+            _ = try await authService.signInWithApple(identityToken: identityToken)
 
             coordinator?.showHome()
         } catch {

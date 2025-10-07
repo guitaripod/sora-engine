@@ -1,5 +1,6 @@
 import UIKit
 
+@MainActor
 final class AppCoordinator {
     private let window: UIWindow
     private var navigationController: UINavigationController?

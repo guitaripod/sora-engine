@@ -73,7 +73,7 @@ final class CreateVideoViewModel: ObservableObject {
         errorMessage = nil
 
         do {
-            let response = try await videoService.createVideo(
+            _ = try await videoService.createVideo(
                 model: selectedModel,
                 prompt: prompt,
                 size: Constants.Video.defaultSize,
