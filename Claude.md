@@ -192,6 +192,5 @@ sora-engine/
 ## Documentation
 
 - [Backend README](backend/README.md) - Backend development guide
-- [Deployment Guide](backend/DEPLOYMENT.md) - Production deployment
 - [API Docs](https://sora-engine.guitaripod.workers.dev/docs) - Swagger UI
 - [OpenAPI Spec](https://sora-engine.guitaripod.workers.dev/openapi.yaml) - Full API specification

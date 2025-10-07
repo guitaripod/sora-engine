@@ -1,15 +1,15 @@
-# 🎬 Sora Engine
+# Sora Engine
 
-**Production-ready Cloudflare Worker backend for iOS AI video generation powered by OpenAI Sora**
+Production-ready Cloudflare Worker backend for iOS AI video generation powered by OpenAI Sora
 
 ## Features
 
-- ⚡ **Blazing Fast**: Deployed on Cloudflare's edge network
-- 📱 **iOS-First**: Sign in with Apple integration
-- 💰 **Simple Pricing**: $9.99 for 1,000 credits
-- 🎥 **Multiple Models**: sora-2 (fast) and sora-2-pro (premium)
-- 🔒 **Secure**: Credit-based system with rate limiting
-- 📊 **Production-Ready**: Full error handling, logging, and monitoring
+- **Blazing Fast**: Deployed on Cloudflare's edge network
+- **iOS-First**: Sign in with Apple integration
+- **Simple Pricing**: $9.99 for 1,000 credits
+- **Multiple Models**: sora-2 (fast) and sora-2-pro (premium)
+- **Secure**: Credit-based system with rate limiting
+- **Production-Ready**: Full error handling, logging, and monitoring
 
 ## Tech Stack
 

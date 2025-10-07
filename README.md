@@ -6,7 +6,7 @@ AI-powered video generation platform using OpenAI's Sora API.
 
 ```
 sora-engine/
-├── backend/          # Rust Cloudflare Worker (Production Ready ✅)
+├── backend/          # Rust Cloudflare Worker (Production Ready)
 │   ├── src/         # Rust source code
 │   ├── migrations/  # D1 database migrations
 │   ├── docs/        # API documentation & landing page
@@ -22,8 +22,6 @@ The backend is **live and deployed** at:
 ```
 https://sora-engine.guitaripod.workers.dev
 ```
-
-See [`backend/DEPLOYMENT.md`](backend/DEPLOYMENT.md) for full deployment details.
 
 To develop locally:
 ```bash
@@ -70,6 +68,5 @@ Starter Pack: **$9.99 = 1,000 credits** (10 videos with sora-2 5s)
 ## Documentation
 
 - [Backend README](backend/README.md) - Development guide
-- [Deployment Guide](backend/DEPLOYMENT.md) - Production setup
 - [API Docs](https://sora-engine.guitaripod.workers.dev/docs) - Swagger UI
 - [OpenAPI Spec](https://sora-engine.guitaripod.workers.dev/openapi.yaml) - Full API spec
