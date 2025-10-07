@@ -46,7 +46,14 @@ final class HomeViewModel {
 
     @MainActor
     func refreshData() async {
-        await loadData()
+        await withTaskGroup(of: Void.self) { group in
+            group.addTask {
+                await self.loadCredits()
+            }
+            group.addTask {
+                await self.loadVideos()
+            }
+        }
     }
 
     @MainActor

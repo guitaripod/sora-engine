@@ -35,11 +35,8 @@ final class SignInViewModel: NSObject, ObservableObject {
         do {
             let response = try await authService.signInWithApple(identityToken: identityToken)
 
-            AppLogger.auth.info("Sign in successful, credits: \(response.creditsBalance)")
-
             coordinator?.showHome()
         } catch {
-            AppLogger.auth.error("Sign in failed: \(error.localizedDescription)")
             errorMessage = error.localizedDescription
         }
 
@@ -68,8 +65,6 @@ extension SignInViewModel: ASAuthorizationControllerDelegate {
         controller: ASAuthorizationController,
         didCompleteWithError error: Error
     ) {
-        AppLogger.auth.error("Authorization failed: \(error.localizedDescription)")
-
         if let authError = error as? ASAuthorizationError,
            authError.code == .canceled {
             return

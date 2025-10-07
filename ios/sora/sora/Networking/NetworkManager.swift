@@ -114,8 +114,6 @@ final class NetworkManager {
             request.httpBody = try encoder.encode(body)
         }
 
-        AppLogger.network.info("Request: \(endpoint.method) \(url.absoluteString)")
-
         do {
             let (data, response) = try await session.data(for: request)
 
@@ -123,15 +121,12 @@ final class NetworkManager {
                 throw NetworkError.noData
             }
 
-            AppLogger.network.info("Response: \(httpResponse.statusCode)")
-
             switch httpResponse.statusCode {
             case 200...299:
                 do {
                     let decoded = try decoder.decode(T.self, from: data)
                     return decoded
                 } catch {
-                    AppLogger.network.error("Decoding error: \(error.localizedDescription)")
                     throw NetworkError.decodingError(error)
                 }
 
@@ -156,7 +151,6 @@ final class NetworkManager {
         } catch let error as NetworkError {
             throw error
         } catch {
-            AppLogger.network.error("Network error: \(error.localizedDescription)")
             throw NetworkError.unknown(error)
         }
     }

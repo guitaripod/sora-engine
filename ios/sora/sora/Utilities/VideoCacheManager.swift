@@ -24,17 +24,12 @@ final class VideoCacheManager {
         let localURL = localURL(for: videoId)
 
         if isCached(videoId: videoId) {
-            AppLogger.video.info("Video already cached: \(videoId)")
             return
         }
-
-        AppLogger.video.info("Downloading video to cache: \(videoId)")
 
         let (tempURL, _) = try await URLSession.shared.download(from: remoteURL)
 
         try FileManager.default.moveItem(at: tempURL, to: localURL)
-
-        AppLogger.video.info("Video cached successfully: \(videoId)")
     }
 
     func clearCache() throws {
@@ -46,8 +41,6 @@ final class VideoCacheManager {
         for fileURL in fileURLs {
             try FileManager.default.removeItem(at: fileURL)
         }
-
-        AppLogger.video.info("Video cache cleared")
     }
 
     func cacheSize() -> Int64 {

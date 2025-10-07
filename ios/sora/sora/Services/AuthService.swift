@@ -27,8 +27,6 @@ final class AuthService: AuthServiceProtocol {
     }
 
     func signInWithApple(identityToken: String) async throws -> AuthResponse {
-        AppLogger.auth.info("Signing in with Apple")
-
         let request = AuthRequest(identityToken: identityToken)
         let response: AuthResponse = try await networkManager.request(
             .appleSignIn,
@@ -38,21 +36,16 @@ final class AuthService: AuthServiceProtocol {
 
         keychainManager.saveUserID(response.userId)
 
-        AppLogger.auth.info("Sign in successful, user created: \(response.created)")
-
         return response
     }
 
     func getCurrentUser() async throws -> User {
-        AppLogger.auth.info("Fetching current user")
-
         let user: User = try await networkManager.request(.getCurrentUser)
 
         return user
     }
 
     func signOut() {
-        AppLogger.auth.info("Signing out")
         keychainManager.deleteUserID()
     }
 }

@@ -152,6 +152,7 @@ final class CreateVideoViewController: UIViewController {
         costStack.axis = .vertical
         costStack.spacing = 4
         costStack.alignment = .center
+        costStack.translatesAutoresizingMaskIntoConstraints = false
         costStack.addArrangedSubviews(costLabel, balanceLabel, loadingIndicator)
 
         let costSection = createSection(title: "Cost", content: costStack)
@@ -212,13 +213,6 @@ final class CreateVideoViewController: UIViewController {
     private func setupNavigationBar() {
         title = "Create Video"
         navigationItem.largeTitleDisplayMode = .never
-
-        let cancelButton = UIBarButtonItem(
-            barButtonSystemItem: .cancel,
-            target: self,
-            action: #selector(cancelTapped)
-        )
-        navigationItem.leftBarButtonItem = cancelButton
     }
 
     private func bindViewModel() {
@@ -316,10 +310,6 @@ final class CreateVideoViewController: UIViewController {
         Task {
             await viewModel.createVideo()
         }
-    }
-
-    @objc private func cancelTapped() {
-        navigationController?.popViewController(animated: true)
     }
 
     @objc private func keyboardWillShow(_ notification: Notification) {

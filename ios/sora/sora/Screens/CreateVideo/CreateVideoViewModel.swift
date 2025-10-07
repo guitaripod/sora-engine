@@ -80,11 +80,8 @@ final class CreateVideoViewModel: ObservableObject {
                 seconds: selectedDuration
             )
 
-            AppLogger.video.info("Video created: \(response.id)")
-
             coordinator?.dismissCreateVideo()
         } catch {
-            AppLogger.video.error("Failed to create video: \(error.localizedDescription)")
             errorMessage = error.localizedDescription
         }
 
@@ -96,7 +93,6 @@ final class CreateVideoViewModel: ObservableObject {
         do {
             currentBalance = try await creditService.getBalance()
         } catch {
-            AppLogger.video.error("Failed to load balance: \(error.localizedDescription)")
         }
     }
 
@@ -120,12 +116,7 @@ final class CreateVideoViewModel: ObservableObject {
 
                 estimatedCost = response.creditsCost
                 currentBalance = response.currentBalance
-
-                AppLogger.video.info("Estimated cost: \(response.creditsCost) credits")
             } catch {
-                if !Task.isCancelled {
-                    AppLogger.video.error("Failed to estimate cost: \(error.localizedDescription)")
-                }
             }
 
             isEstimating = false

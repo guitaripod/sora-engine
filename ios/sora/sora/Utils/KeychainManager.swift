@@ -17,13 +17,7 @@ final class KeychainManager {
 
         SecItemDelete(query as CFDictionary)
 
-        let status = SecItemAdd(query as CFDictionary, nil)
-
-        if status == errSecSuccess {
-            AppLogger.auth.info("User ID saved to keychain")
-        } else {
-            AppLogger.auth.error("Failed to save user ID: \(status)")
-        }
+        _ = SecItemAdd(query as CFDictionary, nil)
     }
 
     func getUserID() -> String? {
@@ -50,13 +44,7 @@ final class KeychainManager {
             kSecAttrAccount as String: Constants.Keychain.userIDKey
         ]
 
-        let status = SecItemDelete(query as CFDictionary)
-
-        if status == errSecSuccess {
-            AppLogger.auth.info("User ID deleted from keychain")
-        } else {
-            AppLogger.auth.error("Failed to delete user ID: \(status)")
-        }
+        _ = SecItemDelete(query as CFDictionary)
     }
 
     var isAuthenticated: Bool {
