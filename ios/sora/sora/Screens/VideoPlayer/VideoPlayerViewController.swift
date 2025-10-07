@@ -1,10 +1,12 @@
 import UIKit
 import AVKit
+import Combine
 
 final class VideoPlayerViewController: UIViewController {
     private let video: Video
     private var player: AVPlayer?
     private var playerViewController: AVPlayerViewController?
+    private var cancellables = Set<AnyCancellable>()
 
     private lazy var loadingIndicator: UIActivityIndicatorView = {
         let indicator = UIActivityIndicatorView(style: .large)
@@ -42,7 +44,6 @@ final class VideoPlayerViewController: UIViewController {
 
         if VideoCacheManager.shared.isCached(videoId: video.id) {
             videoURL = VideoCacheManager.shared.localURL(for: video.id)
-            AppLogger.video.info("Playing from cache: \(self.video.id)")
         } else {
             guard let videoURLString = video.videoUrl,
                   let remoteURL = URL(string: videoURLString) else {
@@ -50,7 +51,6 @@ final class VideoPlayerViewController: UIViewController {
                 return
             }
             videoURL = remoteURL
-            AppLogger.video.info("Streaming from remote: \(videoURLString)")
 
             Task {
                 try? await VideoCacheManager.shared.downloadVideo(videoId: video.id, from: remoteURL)
@@ -59,18 +59,42 @@ final class VideoPlayerViewController: UIViewController {
 
         player = AVPlayer(url: videoURL)
 
-        player?.addObserver(self, forKeyPath: "status", options: [.new, .old], context: nil)
-        player?.currentItem?.addObserver(self, forKeyPath: "status", options: [.new, .old], context: nil)
+        guard let player = player, let playerItem = player.currentItem else {
+            showError("Failed to create player")
+            return
+        }
 
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(playerDidFinishPlaying),
-            name: .AVPlayerItemDidPlayToEndTime,
-            object: player?.currentItem
-        )
+        player.publisher(for: \.status)
+            .sink { [weak self] status in
+                guard let self = self else { return }
+                if status == .failed, let error = player.error {
+                    self.loadingIndicator.stopAnimating()
+                    self.showError("Failed to load video: \(error.localizedDescription)")
+                }
+            }
+            .store(in: &cancellables)
+
+        playerItem.publisher(for: \.status)
+            .sink { [weak self] status in
+                guard let self = self else { return }
+                if status == .failed, let error = playerItem.error {
+                    self.loadingIndicator.stopAnimating()
+                    self.showError("Failed to load video: \(error.localizedDescription)")
+                } else if status == .readyToPlay {
+                    self.showPlayerWhenReady()
+                }
+            }
+            .store(in: &cancellables)
+
+        NotificationCenter.default
+            .publisher(for: .AVPlayerItemDidPlayToEndTime, object: playerItem)
+            .sink { [weak self] _ in
+                self?.playerDidFinishPlaying()
+            }
+            .store(in: &cancellables)
     }
 
-    @objc private func playerDidFinishPlaying() {
+    private func playerDidFinishPlaying() {
         player?.seek(to: .zero)
         player?.play()
     }
@@ -90,35 +114,6 @@ final class VideoPlayerViewController: UIViewController {
 
         player?.play()
         loadingIndicator.stopAnimating()
-
-        AppLogger.video.info("Playing video: \(self.video.id)")
-    }
-
-    override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
-        if keyPath == "status" {
-            if let player = object as? AVPlayer {
-                AppLogger.video.info("Player status: \(player.status.rawValue)")
-                if player.status == .failed {
-                    if let error = player.error {
-                        AppLogger.video.error("Player error: \(error.localizedDescription)")
-                        loadingIndicator.stopAnimating()
-                        showError("Failed to load video: \(error.localizedDescription)")
-                    }
-                }
-            } else if let playerItem = object as? AVPlayerItem {
-                AppLogger.video.info("PlayerItem status: \(playerItem.status.rawValue)")
-                if playerItem.status == .failed {
-                    if let error = playerItem.error {
-                        AppLogger.video.error("PlayerItem error: \(error.localizedDescription)")
-                        loadingIndicator.stopAnimating()
-                        showError("Failed to load video: \(error.localizedDescription)")
-                    }
-                } else if playerItem.status == .readyToPlay {
-                    AppLogger.video.info("Player ready to play")
-                    showPlayerWhenReady()
-                }
-            }
-        }
     }
 
     private func showError(_ message: String) {
@@ -132,12 +127,6 @@ final class VideoPlayerViewController: UIViewController {
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         player?.pause()
-    }
-
-    deinit {
-        NotificationCenter.default.removeObserver(self)
-        player?.removeObserver(self, forKeyPath: "status")
-        player?.currentItem?.removeObserver(self, forKeyPath: "status")
     }
 }
 
