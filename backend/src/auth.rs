@@ -14,10 +14,13 @@ struct AppleJWTClaims {
 
 #[derive(Debug, Deserialize)]
 struct ApplePublicKey {
+    #[allow(dead_code)]
     kty: String,
     kid: String,
     #[serde(rename = "use")]
+    #[allow(dead_code)]
     use_field: String,
+    #[allow(dead_code)]
     alg: String,
     n: String,
     e: String,

@@ -90,6 +90,7 @@ pub async fn get_video_status(
     })
 }
 
+#[allow(dead_code)]
 pub fn build_download_url(video_id: &str, variant: &str) -> String {
     format!(
         "https://api.openai.com/v1/videos/{}/content?variant={}",

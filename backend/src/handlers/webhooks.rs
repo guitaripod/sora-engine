@@ -83,7 +83,7 @@ async fn is_duplicate_webhook(env: &worker::Env, event: &OpenAIWebhookEvent) -> 
 async fn store_webhook_event(env: &worker::Env, event: &OpenAIWebhookEvent) -> Result<(), AppError> {
     let database = env.d1("DB").map_err(|_| AppError::InternalError("Failed to get DB".into()))?;
 
-    let event_id = uuid::Uuid::new_v4().to_string();
+    let event_id = Uuid::new_v4().to_string();
     let payload = serde_json::to_string(event)
         .map_err(|_| AppError::InternalError("Failed to serialize webhook event".into()))?;
 

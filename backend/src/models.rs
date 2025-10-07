@@ -132,6 +132,7 @@ pub struct VideoListResponse {
 pub struct RevenueCatValidateRequest {
     pub transaction_id: String,
     pub product_id: String,
+    #[allow(dead_code)]
     pub receipt_data: String,
 }
 
@@ -160,18 +161,24 @@ pub struct OpenAIWebhookData {
 #[derive(Debug, Deserialize)]
 pub struct OpenAIVideoResponse {
     pub id: String,
+    #[allow(dead_code)]
     pub object: String,
+    #[allow(dead_code)]
     pub created_at: i64,
     pub status: String,
+    #[allow(dead_code)]
     pub model: String,
     pub progress: Option<i32>,
+    #[allow(dead_code)]
     pub seconds: Option<String>,
+    #[allow(dead_code)]
     pub size: Option<String>,
     pub error: Option<OpenAIError>,
 }
 
 #[derive(Debug, Deserialize)]
 pub struct OpenAIError {
+    #[allow(dead_code)]
     pub code: String,
     pub message: String,
 }

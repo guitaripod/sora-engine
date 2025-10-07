@@ -39,6 +39,7 @@ pub async fn check_rate_limit(env: &Env, user_id: &str) -> Result<(), AppError> 
     Ok(())
 }
 
+#[allow(dead_code)]
 pub async fn get_rate_limit_status(env: &Env, user_id: &str) -> Result<(i64, i64), AppError> {
     let max_per_day = env
         .var("MAX_VIDEOS_PER_DAY")
