@@ -260,7 +260,7 @@ pub async fn insert_transaction(
     transaction_type: &str,
     description: &str,
     video_id: Option<&str>,
-    revenuecat_transaction_id: Option<&str>,
+    apple_transaction_id: Option<&str>,
 ) -> Result<(), AppError> {
     let db = get_db(env)?;
     let transaction_id = uuid::Uuid::new_v4().to_string();
@@ -274,7 +274,7 @@ pub async fn insert_transaction(
             transaction_type.into(),
             description.into(),
             video_id.map(|v| JsValue::from_str(v)).unwrap_or(JsValue::NULL),
-            revenuecat_transaction_id.map(|v| JsValue::from_str(v)).unwrap_or(JsValue::NULL),
+            apple_transaction_id.map(|v| JsValue::from_str(v)).unwrap_or(JsValue::NULL),
             now_rfc3339().into(),
         ])?
         .run()

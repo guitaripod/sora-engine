@@ -64,7 +64,8 @@ pub struct CreditTransaction {
     pub transaction_type: String,
     pub description: String,
     pub video_id: Option<String>,
-    pub revenuecat_transaction_id: Option<String>,
+    #[serde(rename = "revenuecat_transaction_id")]
+    pub apple_transaction_id: Option<String>,
     pub metadata: Option<String>,
     pub created_at: DateTime<Utc>,
 }

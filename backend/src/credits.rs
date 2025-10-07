@@ -79,7 +79,7 @@ pub async fn add_credits(
     user_id: &str,
     amount: i64,
     description: &str,
-    revenuecat_transaction_id: Option<&str>,
+    apple_transaction_id: Option<&str>,
 ) -> Result<i64, AppError> {
     let user = db::get_user_by_id(env, user_id).await?;
     let new_balance = user.credits_balance + amount;
@@ -106,7 +106,7 @@ pub async fn add_credits(
         "purchase",
         description,
         None,
-        revenuecat_transaction_id,
+        apple_transaction_id,
     )
     .await?;
 
