@@ -23,8 +23,8 @@ pub async fn deduct_credits_with_lock(
         .map_err(|e| AppError::InternalError(format!("Failed to get DB: {}", e)))?;
 
     database
-        .prepare("INSERT INTO user_locks (user_id, video_id) VALUES (?, ?)")
-        .bind(&[user_id.into(), video_id.into()])?
+        .prepare("INSERT INTO user_locks (user_id) VALUES (?)")
+        .bind(&[user_id.into()])?
         .run()
         .await
         .map_err(|_| AppError::ConcurrentGeneration)?;
