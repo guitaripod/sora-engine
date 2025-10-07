@@ -30,11 +30,6 @@ cargo build
 wrangler dev
 ```
 
-### iOS App
-
-- Sign in with Apple
-- Backend API for video generation
-
 ## Features
 
 - **iOS-First**: Built for mobile with extensibility for web
