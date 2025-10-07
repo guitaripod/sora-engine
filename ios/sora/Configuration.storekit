@@ -1,0 +1,35 @@
+{
+  "identifier" : "C7C5E7C4",
+  "nonRenewingSubscriptions" : [
+
+  ],
+  "products" : [
+    {
+      "displayPrice" : "9.99",
+      "familyShareable" : false,
+      "internalID" : "6670615519",
+      "localizations" : [
+        {
+          "description" : "Get 1,000 credits to create stunning AI-generated videos with Sora Engine",
+          "displayName" : "Starter Pack",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "sora_starter_pack",
+      "referenceName" : "Starter Pack",
+      "type" : "Consumable"
+    }
+  ],
+  "settings" : {
+    "_applicationInternalID" : "6670615516",
+    "_developerTeamID" : "P4DQK6SRKR",
+    "_lastSynchronizedDate" : 761097600.0
+  },
+  "subscriptionGroups" : [
+
+  ],
+  "version" : {
+    "major" : 3,
+    "minor" : 0
+  }
+}

@@ -8,8 +8,7 @@ enum Constants {
         static let userIDKey = "user_id"
     }
 
-    enum RevenueCat {
-        static let apiKey = "YOUR_REVENUECAT_API_KEY"
+    enum IAP {
         static let starterPackProductID = "sora_starter_pack"
     }
 
