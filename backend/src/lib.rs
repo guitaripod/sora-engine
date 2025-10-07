@@ -66,8 +66,8 @@ async fn main(req: Request, env: Env, _ctx: Context) -> worker::Result<Response>
         .get_async("/v1/credits/transactions", handlers::credits::get_transactions)
         .get_async("/v1/credits/packs", handlers::credits::get_credit_packs)
         .post_async(
-            "/v1/credits/purchase/revenuecat/validate",
-            handlers::credits::validate_revenuecat_purchase,
+            "/v1/credits/purchase/apple/validate",
+            handlers::credits::validate_apple_iap,
         )
         .post_async("/v1/webhook/openai", handlers::webhooks::openai_webhook)
         .options("/*catchall", |_, ctx| {

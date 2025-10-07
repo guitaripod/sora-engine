@@ -129,18 +129,16 @@ pub struct VideoListResponse {
 }
 
 #[derive(Debug, Deserialize)]
-pub struct RevenueCatValidateRequest {
-    pub transaction_id: String,
-    pub product_id: String,
-    #[allow(dead_code)]
-    pub receipt_data: String,
+pub struct AppleIAPValidateRequest {
+    pub transaction_jws: String,
 }
 
 #[derive(Debug, Serialize)]
-pub struct RevenueCatValidateResponse {
+pub struct AppleIAPValidateResponse {
     pub success: bool,
     pub credits_added: i64,
     pub new_balance: i64,
+    pub transaction_id: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
