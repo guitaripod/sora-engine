@@ -32,7 +32,6 @@ wrangler dev
 
 ### iOS App
 
-Coming soon. Will be built with SwiftUI and integrate with:
 - Sign in with Apple
 - Backend API for video generation
 
