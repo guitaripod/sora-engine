@@ -77,7 +77,7 @@ final class HomeViewController: UIViewController {
 
     private lazy var emptyStateLabel: UILabel = {
         let label = UILabel()
-        label.text = "No videos yet.\nTap 'Create Video' to get started!"
+        label.text = "No videos yet.\nTap + to get started!"
         label.font = .systemFont(ofSize: 16, weight: .medium)
         label.textColor = .secondaryLabel
         label.textAlignment = .center
@@ -85,6 +85,27 @@ final class HomeViewController: UIViewController {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.isHidden = true
         return label
+    }()
+
+    private lazy var floatingActionButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.translatesAutoresizingMaskIntoConstraints = false
+
+        let config = UIImage.SymbolConfiguration(pointSize: 28, weight: .semibold)
+        let image = UIImage(systemName: "plus", withConfiguration: config)
+        button.setImage(image, for: .normal)
+        button.tintColor = .white
+        button.backgroundColor = .systemIndigo
+
+        button.layer.cornerRadius = 30
+        button.layer.shadowColor = UIColor.black.cgColor
+        button.layer.shadowOffset = CGSize(width: 0, height: 4)
+        button.layer.shadowRadius = 12
+        button.layer.shadowOpacity = 0.3
+
+        button.addTarget(self, action: #selector(createButtonTapped), for: .touchUpInside)
+
+        return button
     }()
 
     private lazy var skeletonView: UIView = {
@@ -175,7 +196,7 @@ final class HomeViewController: UIViewController {
     private func setupUI() {
         view.backgroundColor = .systemGroupedBackground
 
-        view.addSubviews(collectionView, emptyStateLabel, skeletonView)
+        view.addSubviews(collectionView, emptyStateLabel, skeletonView, floatingActionButton)
         collectionView.refreshControl = refreshControl
         collectionView.alpha = 0
 
@@ -191,7 +212,12 @@ final class HomeViewController: UIViewController {
             skeletonView.topAnchor.constraint(equalTo: view.topAnchor),
             skeletonView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             skeletonView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            skeletonView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+            skeletonView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+
+            floatingActionButton.widthAnchor.constraint(equalToConstant: 60),
+            floatingActionButton.heightAnchor.constraint(equalToConstant: 60),
+            floatingActionButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -20),
+            floatingActionButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20)
         ])
     }
 
@@ -199,16 +225,16 @@ final class HomeViewController: UIViewController {
         title = "Sora Engine"
         navigationController?.navigationBar.prefersLargeTitles = true
 
-        let createButton = UIBarButtonItem(
-            image: UIImage(systemName: "plus.circle.fill"),
+        let signOutButton = UIBarButtonItem(
+            image: UIImage(systemName: "rectangle.portrait.and.arrow.right"),
             style: .plain,
             target: self,
-            action: #selector(createButtonTapped)
+            action: #selector(signOutTapped)
         )
-        createButton.tintColor = .systemIndigo
+        signOutButton.tintColor = .systemRed
 
         navigationItem.leftBarButtonItem = UIBarButtonItem(customView: creditsTitleView)
-        navigationItem.rightBarButtonItem = createButton
+        navigationItem.rightBarButtonItem = signOutButton
     }
 
     private func bindViewModel() {
