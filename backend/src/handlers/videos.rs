@@ -45,55 +45,57 @@ async fn create_video_inner(
     .await?;
     console_log!("Credits deducted. New balance: {}", new_balance);
 
-    console_log!("Calling OpenAI API to create video");
-    let openai_response = match openai_client::create_video(
-        &ctx.env,
-        &body.model,
-        &body.prompt,
-        &body.size,
-        body.seconds,
-    )
-    .await
-    {
-        Ok(resp) => {
-            console_log!("OpenAI video created successfully: {}", resp.id);
-            resp
-        },
+    let result = async {
+        console_log!("Calling OpenAI API to create video");
+        let openai_response = openai_client::create_video(
+            &ctx.env,
+            &body.model,
+            &body.prompt,
+            &body.size,
+            body.seconds,
+        )
+        .await?;
+        console_log!("OpenAI video created successfully: {}", openai_response.id);
+
+        let video = Video::new(
+            user_id.clone(),
+            openai_response.id.clone(),
+            body.model,
+            body.prompt,
+            body.size,
+            body.seconds,
+            credits_cost,
+        );
+
+        console_log!("Inserting video into database");
+        db::insert_video(&ctx.env, &video).await?;
+        console_log!("Video inserted successfully");
+
+        let response = CreateVideoResponse {
+            id: video.id,
+            status: video.status,
+            credits_cost,
+            new_balance,
+            estimated_wait_seconds: 120,
+        };
+
+        Ok::<_, AppError>(response)
+    }
+    .await;
+
+    match result {
+        Ok(response) => {
+            credits::release_lock(&ctx.env, &user_id).await?;
+            console_log!("Video creation completed successfully");
+            Response::from_json(&response).map_err(|e| e.into())
+        }
         Err(e) => {
-            console_log!("OpenAI API call failed: {:?}", e);
+            console_log!("Video creation failed: {:?}", e);
             credits::refund_credits(&ctx.env, &user_id, &video_id, credits_cost).await?;
             credits::release_lock(&ctx.env, &user_id).await?;
-            return Err(e);
+            Err(e)
         }
-    };
-
-    let video = Video::new(
-        user_id.clone(),
-        openai_response.id.clone(),
-        body.model,
-        body.prompt,
-        body.size,
-        body.seconds,
-        credits_cost,
-    );
-
-    console_log!("Inserting video into database");
-    db::insert_video(&ctx.env, &video).await?;
-    console_log!("Video inserted successfully");
-
-    credits::release_lock(&ctx.env, &user_id).await?;
-    console_log!("User lock released");
-
-    let response = CreateVideoResponse {
-        id: video.id,
-        status: video.status,
-        credits_cost,
-        new_balance,
-        estimated_wait_seconds: 120,
-    };
-
-    console_log!("Video creation completed successfully");
-    Response::from_json(&response).map_err(|e| e.into())
+    }
 }
 
 pub async fn create_video(req: Request, ctx: RouteContext<()>) -> worker::Result<Response> {
