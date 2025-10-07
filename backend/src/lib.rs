@@ -12,12 +12,19 @@ mod handlers;
 
 use error::AppError;
 
-fn cors_headers() -> Headers {
+fn cors_headers_with_env(env: &Env) -> Headers {
     let headers = Headers::new();
-    let _ = headers.set("Access-Control-Allow-Origin", "*");
-    let _ = headers.set("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-    let _ = headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
-    let _ = headers.set("Access-Control-Max-Age", "86400");
+
+    if let Ok(allowed_origin) = env.var("ALLOWED_ORIGIN") {
+        let origin = allowed_origin.to_string();
+        if !origin.is_empty() {
+            let _ = headers.set("Access-Control-Allow-Origin", &origin);
+            let _ = headers.set("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+            let _ = headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
+            let _ = headers.set("Access-Control-Max-Age", "86400");
+        }
+    }
+
     headers
 }
 
@@ -63,8 +70,8 @@ async fn main(req: Request, env: Env, _ctx: Context) -> worker::Result<Response>
             handlers::credits::validate_revenuecat_purchase,
         )
         .post_async("/v1/webhook/openai", handlers::webhooks::openai_webhook)
-        .options("/*catchall", |_, _| {
-            Response::ok("").map(|r| r.with_headers(cors_headers()))
+        .options("/*catchall", |_, ctx| {
+            Response::ok("").map(|r| r.with_headers(cors_headers_with_env(&ctx.env)))
         })
         .run(req, env)
         .await;

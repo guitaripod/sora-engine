@@ -79,7 +79,6 @@ async fn proxy_video_content_inner(
         }
 
         resp.headers_mut().set("Cache-Control", "public, max-age=86400")?;
-        resp.headers_mut().set("Access-Control-Allow-Origin", "*")?;
         return Ok(resp);
     }
 
@@ -127,7 +126,6 @@ async fn proxy_video_content_inner(
                 resp.headers_mut().set("Content-Range", &format!("bytes {}-{}/{}", start, end, total_length))?;
                 resp.headers_mut().set("Accept-Ranges", "bytes")?;
                 resp.headers_mut().set("Cache-Control", "public, max-age=86400")?;
-                resp.headers_mut().set("Access-Control-Allow-Origin", "*")?;
 
                 return Ok(resp);
             }
@@ -139,7 +137,6 @@ async fn proxy_video_content_inner(
     resp.headers_mut().set("Content-Length", &total_length.to_string())?;
     resp.headers_mut().set("Accept-Ranges", "bytes")?;
     resp.headers_mut().set("Cache-Control", "public, max-age=86400")?;
-    resp.headers_mut().set("Access-Control-Allow-Origin", "*")?;
 
     Ok(resp)
 }
