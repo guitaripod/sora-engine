@@ -275,9 +275,9 @@ paths:
                     popular:
                       type: boolean
 
-  /v1/credits/purchase/revenuecat/validate:
+  /v1/credits/purchase/apple/validate:
     post:
-      summary: Validate iOS in-app purchase (RevenueCat)
+      summary: Validate Apple in-app purchase
       tags:
         - Credits
       requestBody:
