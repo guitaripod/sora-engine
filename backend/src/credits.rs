@@ -13,8 +13,8 @@ pub async fn deduct_credits_with_lock(
         .map_err(|e| AppError::InternalError(format!("Failed to get DB: {}", e)))?;
 
     database
-        .prepare("INSERT INTO user_locks (user_id) VALUES (?)")
-        .bind(&[user_id.into()])?
+        .prepare("INSERT INTO user_locks (user_id, video_id) VALUES (?, ?)")
+        .bind(&[user_id.into(), video_id.into()])?
         .run()
         .await
         .map_err(|_| AppError::ConcurrentGeneration)?;
@@ -42,7 +42,7 @@ pub async fn deduct_credits_with_lock(
         new_balance,
         "video_generation",
         "Video generation cost",
-        None,
+        Some(video_id),
         None,
     )
     .await?;
@@ -133,7 +133,7 @@ pub async fn refund_credits(
         new_balance,
         "refund",
         "Video generation failed - credits refunded",
-        None,
+        Some(video_id),
         None,
     )
     .await?;
