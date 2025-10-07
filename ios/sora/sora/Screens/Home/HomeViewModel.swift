@@ -50,6 +50,11 @@ final class HomeViewModel {
     }
 
     @MainActor
+    func refreshCredits() async {
+        await loadCredits()
+    }
+
+    @MainActor
     func createVideoTapped() {
         coordinator?.showCreateVideo()
     }

@@ -39,6 +39,9 @@ final class HomeViewController: UIViewController {
 
     private lazy var creditsTitleView: UIView = {
         let container = UIView()
+        container.isUserInteractionEnabled = true
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(creditsTapped))
+        container.addGestureRecognizer(tapGesture)
 
         let stackView = UIStackView()
         stackView.axis = .horizontal
@@ -179,9 +182,25 @@ final class HomeViewController: UIViewController {
         setupUI()
         setupNavigationBar()
         bindViewModel()
+        setupNotifications()
 
         Task {
             await viewModel.loadData()
+        }
+    }
+
+    private func setupNotifications() {
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(creditsDidUpdate),
+            name: NSNotification.Name("CreditsDidUpdate"),
+            object: nil
+        )
+    }
+
+    @objc private func creditsDidUpdate() {
+        Task {
+            await viewModel.refreshCredits()
         }
     }
 
@@ -338,6 +357,12 @@ final class HomeViewController: UIViewController {
         })
 
         present(alert, animated: true)
+    }
+
+    @objc private func creditsTapped() {
+        let purchaseVC = PurchaseViewController()
+        let navController = UINavigationController(rootViewController: purchaseVC)
+        present(navController, animated: true)
     }
 }
 
