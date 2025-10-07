@@ -72,6 +72,7 @@ final class HomeViewModel {
         do {
             credits = try await creditService.getBalance()
         } catch {
+            errorMessage = "Failed to load credits: \(error.localizedDescription)"
         }
     }
 
@@ -101,7 +102,8 @@ final class HomeViewModel {
         stopAutoRefresh()
 
         refreshTimer = Timer.scheduledTimer(withTimeInterval: 30.0, repeats: true) { [weak self] _ in
-            Task { @MainActor in
+            guard let self = self else { return }
+            Task { @MainActor [weak self] in
                 await self?.refreshActiveVideos()
             }
         }

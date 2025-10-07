@@ -128,6 +128,9 @@ final class SignInViewController: UIViewController {
     }
 
     @objc private func handleSignInTapped() {
-        viewModel.signInWithApple(presentationAnchor: view.window!)
+        guard let window = view.window else {
+            return
+        }
+        viewModel.signInWithApple(presentationAnchor: window)
     }
 }
