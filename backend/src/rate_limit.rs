@@ -1,7 +1,17 @@
 use crate::error::AppError;
 use worker::Env;
-use chrono::Utc;
+use chrono::DateTime;
 use serde::Deserialize;
+
+fn today_date() -> String {
+    let ms = worker::Date::now().as_millis();
+    let secs = (ms / 1000) as i64;
+    let nsecs = ((ms % 1000) * 1_000_000) as u32;
+    DateTime::from_timestamp(secs, nsecs)
+        .unwrap_or_else(|| DateTime::from_timestamp(0, 0).unwrap())
+        .format("%Y-%m-%d")
+        .to_string()
+}
 
 #[derive(Deserialize)]
 struct CountResult {
@@ -18,7 +28,7 @@ pub async fn check_rate_limit(env: &Env, user_id: &str) -> Result<(), AppError> 
         .d1("DB")
         .map_err(|e| AppError::InternalError(format!("Failed to get DB: {}", e)))?;
 
-    let today = Utc::now().format("%Y-%m-%d").to_string();
+    let today = today_date();
 
     let count_result: Option<CountResult> = db
         .prepare("SELECT COUNT(*) as count FROM videos WHERE user_id = ? AND DATE(created_at) = ?")
@@ -50,7 +60,7 @@ pub async fn get_rate_limit_status(env: &Env, user_id: &str) -> Result<(i64, i64
         .d1("DB")
         .map_err(|e| AppError::InternalError(format!("Failed to get DB: {}", e)))?;
 
-    let today = Utc::now().format("%Y-%m-%d").to_string();
+    let today = today_date();
 
     let count_result: Option<CountResult> = db
         .prepare("SELECT COUNT(*) as count FROM videos WHERE user_id = ? AND DATE(created_at) = ?")

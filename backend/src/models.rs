@@ -184,8 +184,7 @@ pub struct OpenAIError {
 }
 
 impl User {
-    pub fn new(apple_user_id: String, email: Option<String>) -> Self {
-        let now = Utc::now();
+    pub fn new(apple_user_id: String, email: Option<String>, now: chrono::DateTime<Utc>) -> Self {
         Self {
             id: uuid::Uuid::new_v4().to_string(),
             apple_user_id,
@@ -207,6 +206,7 @@ impl Video {
         size: String,
         seconds: i32,
         credits_cost: i64,
+        now: DateTime<Utc>,
     ) -> Self {
         Self {
             id: uuid::Uuid::new_v4().to_string(),
@@ -223,7 +223,7 @@ impl Video {
             download_url_expires_at: None,
             credits_cost,
             progress: 0,
-            created_at: Utc::now(),
+            created_at: now,
             completed_at: None,
             failed_at: None,
             error_message: None,

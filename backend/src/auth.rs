@@ -4,12 +4,9 @@ use worker::{Env, Request};
 
 #[derive(Debug, Serialize, Deserialize)]
 struct AppleJWTClaims {
-    pub sub: String,
     pub email: Option<String>,
-    pub iss: String,
-    pub aud: String,
-    pub exp: u64,
-    pub iat: u64,
+    #[serde(default)]
+    pub email_verified: Option<bool>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -69,28 +66,41 @@ pub async fn verify_apple_token(identity_token: &str, env: &Env) -> Result<(Stri
 
     let claims = token_data.custom;
 
-    let now = std::time::SystemTime::now()
-        .duration_since(std::time::UNIX_EPOCH)
-        .map_err(|_| AppError::InternalError("System time error".into()))?
+    let sub = token_data.subject
+        .ok_or_else(|| AppError::Unauthorized("Missing subject".into()))?;
+    let exp = token_data.expires_at
+        .ok_or_else(|| AppError::Unauthorized("Missing expiration time".into()))?
         .as_secs();
+    let iat = token_data.issued_at
+        .ok_or_else(|| AppError::Unauthorized("Missing issued at time".into()))?
+        .as_secs();
+    let iss = token_data.issuer
+        .ok_or_else(|| AppError::Unauthorized("Missing issuer".into()))?;
+    let aud = token_data.audiences
+        .ok_or_else(|| AppError::Unauthorized("Missing audience".into()))?;
 
-    if claims.exp < now {
+    let now = (worker::Date::now().as_millis() / 1000) as u64;
+
+    if exp < now {
         return Err(AppError::Unauthorized("Token expired".into()));
     }
 
-    if claims.iat > now + 60 {
+    if iat > now + 60 {
         return Err(AppError::Unauthorized("Token issued in the future".into()));
     }
 
-    if claims.iss != "https://appleid.apple.com" {
+    if iss != "https://appleid.apple.com" {
         return Err(AppError::Unauthorized("Invalid token issuer".into()));
     }
 
-    if claims.aud != client_id {
+    let mut allowed_audiences = std::collections::HashSet::new();
+    allowed_audiences.insert(client_id.clone());
+
+    if !aud.contains(&allowed_audiences) {
         return Err(AppError::Unauthorized("Invalid token audience".into()));
     }
 
-    Ok((claims.sub, claims.email))
+    Ok((sub, claims.email))
 }
 
 fn decode_jwt_part(part: &str) -> Result<Vec<u8>, AppError> {

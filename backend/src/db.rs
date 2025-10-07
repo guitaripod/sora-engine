@@ -1,8 +1,20 @@
 use crate::error::AppError;
 use crate::models::{User, Video, CreditTransaction};
 use worker::{Env, D1Database, wasm_bindgen::JsValue};
-use chrono::Utc;
+use chrono::{DateTime, Utc};
 use serde::Deserialize;
+
+fn now_datetime() -> DateTime<Utc> {
+    let ms = worker::Date::now().as_millis();
+    let secs = (ms / 1000) as i64;
+    let nsecs = ((ms % 1000) * 1_000_000) as u32;
+    DateTime::from_timestamp(secs, nsecs)
+        .unwrap_or_else(|| DateTime::from_timestamp(0, 0).unwrap())
+}
+
+fn now_rfc3339() -> String {
+    now_datetime().to_rfc3339()
+}
 
 #[derive(Deserialize)]
 struct CountResult {
@@ -16,21 +28,34 @@ pub async fn get_or_create_user(
 ) -> Result<(User, bool), AppError> {
     let db = get_db(env)?;
 
-    let existing: Option<User> = db
+    let existing = db
         .prepare("SELECT id, apple_user_id, email, credits_balance, total_videos_generated, created_at, updated_at FROM users WHERE apple_user_id = ?")
         .bind(&[apple_user_id.into()])?
-        .first(None)
+        .first::<serde_json::Value>(None)
         .await
         .map_err(|e| AppError::DatabaseError(e.to_string()))?;
 
-    if let Some(user) = existing {
+    if let Some(user_data) = existing {
+        let user = User {
+            id: user_data.get("id").and_then(|v| v.as_str()).unwrap_or("").to_string(),
+            apple_user_id: user_data.get("apple_user_id").and_then(|v| v.as_str()).unwrap_or("").to_string(),
+            email: user_data.get("email").and_then(|v| v.as_str()).map(|s| s.to_string()),
+            credits_balance: user_data.get("credits_balance").and_then(|v| v.as_f64()).unwrap_or(0.0) as i64,
+            total_videos_generated: user_data.get("total_videos_generated").and_then(|v| v.as_f64()).unwrap_or(0.0) as i64,
+            created_at: user_data.get("created_at").and_then(|v| v.as_str()).and_then(|s| s.parse().ok()).unwrap_or_else(|| now_datetime()),
+            updated_at: user_data.get("updated_at").and_then(|v| v.as_str()).and_then(|s| s.parse().ok()).unwrap_or_else(|| now_datetime()),
+        };
         return Ok((user, false));
     }
 
     use crate::pricing::WELCOME_CREDITS;
 
-    let mut user = User::new(apple_user_id.to_string(), email.clone());
+    let now = now_datetime();
+    let mut user = User::new(apple_user_id.to_string(), email.clone(), now);
     user.credits_balance = WELCOME_CREDITS;
+
+    let created_at_str = user.created_at.to_rfc3339();
+    let updated_at_str = user.updated_at.to_rfc3339();
 
     db.prepare("INSERT INTO users (id, apple_user_id, email, credits_balance, total_videos_generated, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)")
         .bind(&[
@@ -39,8 +64,8 @@ pub async fn get_or_create_user(
             email.unwrap_or_default().into(),
             (user.credits_balance as f64).into(),
             (user.total_videos_generated as f64).into(),
-            user.created_at.to_rfc3339().into(),
-            user.updated_at.to_rfc3339().into(),
+            created_at_str.into(),
+            updated_at_str.into(),
         ])?
         .run()
         .await
@@ -55,7 +80,7 @@ pub async fn get_or_create_user(
             (WELCOME_CREDITS as f64).into(),
             "welcome".into(),
             "Welcome bonus - Try your first video for free!".into(),
-            Utc::now().to_rfc3339().into(),
+            now_rfc3339().into(),
         ])?
         .run()
         .await
@@ -67,12 +92,22 @@ pub async fn get_or_create_user(
 pub async fn get_user_by_id(env: &Env, user_id: &str) -> Result<User, AppError> {
     let db = get_db(env)?;
 
-    db.prepare("SELECT id, apple_user_id, email, credits_balance, total_videos_generated, created_at, updated_at FROM users WHERE id = ?")
+    let user_data = db.prepare("SELECT id, apple_user_id, email, credits_balance, total_videos_generated, created_at, updated_at FROM users WHERE id = ?")
         .bind(&[user_id.into()])?
-        .first(None)
+        .first::<serde_json::Value>(None)
         .await
         .map_err(|e| AppError::DatabaseError(e.to_string()))?
-        .ok_or_else(|| AppError::NotFound("User not found".into()))
+        .ok_or_else(|| AppError::NotFound("User not found".into()))?;
+
+    Ok(User {
+        id: user_data.get("id").and_then(|v| v.as_str()).unwrap_or("").to_string(),
+        apple_user_id: user_data.get("apple_user_id").and_then(|v| v.as_str()).unwrap_or("").to_string(),
+        email: user_data.get("email").and_then(|v| v.as_str()).map(|s| s.to_string()),
+        credits_balance: user_data.get("credits_balance").and_then(|v| v.as_f64()).unwrap_or(0.0) as i64,
+        total_videos_generated: user_data.get("total_videos_generated").and_then(|v| v.as_f64()).unwrap_or(0.0) as i64,
+        created_at: user_data.get("created_at").and_then(|v| v.as_str()).and_then(|s| s.parse().ok()).unwrap_or_else(|| now_datetime()),
+        updated_at: user_data.get("updated_at").and_then(|v| v.as_str()).and_then(|s| s.parse().ok()).unwrap_or_else(|| now_datetime()),
+    })
 }
 
 pub async fn insert_video(env: &Env, video: &Video) -> Result<(), AppError> {
@@ -146,7 +181,7 @@ pub async fn update_video_completed(
     spritesheet_url: &str,
 ) -> Result<(), AppError> {
     let db = get_db(env)?;
-    let now = Utc::now();
+    let now = now_datetime();
     let expires_at = now + chrono::Duration::hours(24);
 
     db.prepare("UPDATE videos SET status = ?, video_url = ?, thumbnail_url = ?, spritesheet_url = ?, download_url_expires_at = ?, completed_at = ?, progress = 100 WHERE openai_video_id = ?")
@@ -172,7 +207,7 @@ pub async fn update_video_failed(
     error_message: &str,
 ) -> Result<(), AppError> {
     let db = get_db(env)?;
-    let now = Utc::now();
+    let now = now_datetime();
 
     db.prepare("UPDATE videos SET status = ?, error_message = ?, failed_at = ? WHERE openai_video_id = ?")
         .bind(&[
@@ -240,7 +275,7 @@ pub async fn insert_transaction(
             description.into(),
             video_id.map(|v| JsValue::from_str(v)).unwrap_or(JsValue::NULL),
             revenuecat_transaction_id.map(|v| JsValue::from_str(v)).unwrap_or(JsValue::NULL),
-            Utc::now().to_rfc3339().into(),
+            now_rfc3339().into(),
         ])?
         .run()
         .await

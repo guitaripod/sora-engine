@@ -1,6 +1,16 @@
 use crate::db;
 use crate::error::AppError;
 use worker::Env;
+use chrono::DateTime;
+
+fn now_rfc3339() -> String {
+    let ms = worker::Date::now().as_millis();
+    let secs = (ms / 1000) as i64;
+    let nsecs = ((ms % 1000) * 1_000_000) as u32;
+    DateTime::from_timestamp(secs, nsecs)
+        .unwrap_or_else(|| DateTime::from_timestamp(0, 0).unwrap())
+        .to_rfc3339()
+}
 
 pub async fn deduct_credits_with_lock(
     env: &Env,
@@ -30,7 +40,7 @@ pub async fn deduct_credits_with_lock(
 
     database
         .prepare("UPDATE users SET credits_balance = ?, total_videos_generated = total_videos_generated + 1, updated_at = ? WHERE id = ?")
-        .bind(&[(new_balance as f64).into(), chrono::Utc::now().to_rfc3339().into(), user_id.into()])?
+        .bind(&[(new_balance as f64).into(), now_rfc3339().into(), user_id.into()])?
         .run()
         .await
         .map_err(|e| AppError::DatabaseError(e.to_string()))?;
@@ -81,7 +91,7 @@ pub async fn add_credits(
     db.prepare("UPDATE users SET credits_balance = ?, updated_at = ? WHERE id = ?")
         .bind(&[
             (new_balance as f64).into(),
-            chrono::Utc::now().to_rfc3339().into(),
+            now_rfc3339().into(),
             user_id.into(),
         ])?
         .run()
@@ -130,7 +140,7 @@ pub async fn refund_credits(
     db.prepare("UPDATE users SET credits_balance = ?, updated_at = ? WHERE id = ?")
         .bind(&[
             (new_balance as f64).into(),
-            chrono::Utc::now().to_rfc3339().into(),
+            now_rfc3339().into(),
             user_id.into(),
         ])?
         .run()

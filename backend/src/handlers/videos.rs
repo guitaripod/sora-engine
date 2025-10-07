@@ -7,6 +7,15 @@ use crate::openai_client;
 use crate::pricing;
 use crate::rate_limit;
 use worker::{console_log, Request, Response, RouteContext, Url};
+use chrono::{DateTime, Utc};
+
+fn now_datetime() -> DateTime<Utc> {
+    let ms = worker::Date::now().as_millis();
+    let secs = (ms / 1000) as i64;
+    let nsecs = ((ms % 1000) * 1_000_000) as u32;
+    DateTime::from_timestamp(secs, nsecs)
+        .unwrap_or_else(|| DateTime::from_timestamp(0, 0).unwrap())
+}
 
 async fn create_video_inner(
     mut req: Request,
@@ -65,6 +74,7 @@ async fn create_video_inner(
             body.size,
             body.seconds,
             credits_cost,
+            now_datetime(),
         );
 
         console_log!("Inserting video into database");
