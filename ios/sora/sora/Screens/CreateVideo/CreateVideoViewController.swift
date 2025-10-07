@@ -89,12 +89,6 @@ final class CreateVideoViewController: UIViewController {
         return button
     }()
 
-    private lazy var loadingIndicator: UIActivityIndicatorView = {
-        let indicator = UIActivityIndicatorView(style: .medium)
-        indicator.hidesWhenStopped = true
-        indicator.translatesAutoresizingMaskIntoConstraints = false
-        return indicator
-    }()
 
     init(viewModel: CreateVideoViewModel) {
         self.viewModel = viewModel
@@ -111,6 +105,7 @@ final class CreateVideoViewController: UIViewController {
         setupNavigationBar()
         bindViewModel()
         setupKeyboardHandling()
+        setupTapToDismiss()
     }
 
     private func setupUI() {
@@ -153,7 +148,7 @@ final class CreateVideoViewController: UIViewController {
         costStack.spacing = 4
         costStack.alignment = .center
         costStack.translatesAutoresizingMaskIntoConstraints = false
-        costStack.addArrangedSubviews(costLabel, balanceLabel, loadingIndicator)
+        costStack.addArrangedSubviews(costLabel, balanceLabel)
 
         let costSection = createSection(title: "Cost", content: costStack)
 
@@ -230,16 +225,6 @@ final class CreateVideoViewController: UIViewController {
             }
             .store(in: &cancellables)
 
-        viewModel.$isEstimating
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] isEstimating in
-                if isEstimating {
-                    self?.loadingIndicator.startAnimating()
-                } else {
-                    self?.loadingIndicator.stopAnimating()
-                }
-            }
-            .store(in: &cancellables)
 
         viewModel.$isCreating
             .receive(on: DispatchQueue.main)
@@ -281,6 +266,16 @@ final class CreateVideoViewController: UIViewController {
             name: UIResponder.keyboardWillHideNotification,
             object: nil
         )
+    }
+
+    private func setupTapToDismiss() {
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        tapGesture.cancelsTouchesInView = false
+        view.addGestureRecognizer(tapGesture)
+    }
+
+    @objc private func dismissKeyboard() {
+        view.endEditing(true)
     }
 
     private func updateCharacterCount() {
